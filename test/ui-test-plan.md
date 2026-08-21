@@ -230,3 +230,95 @@ How can I be of service today!
    -----------------------------
    Goodbye! Hope to see you again soon =)
    -----------------------------
+
+### Test Case: Delete task from middle of list
+
+Aim:
+Verify that deleting a task from the middle removes the correct task and shifts later tasks up.
+
+Inputs:
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th 2pm /to 4pm
+todo join sports club
+todo borrow book
+mark 1
+mark 2
+mark 4
+list
+delete 3
+list
+bye
+
+Expected Output:
+██╗  ██╗██╗██╗  ██╗██╗
+██║ ██╔╝██║██║ ██╔╝██║
+█████╔╝ ██║█████╔╝ ██║
+██╔═██╗ ██║██╔═██╗ ██║
+██║  ██╗██║██║  ██╗██║
+╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
+Hello! I'm Kiki
+How can I be of service today!
+   -----------------------------
+    Currently in Listing Mode!
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [T][ ] read book
+   Now you have 1 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [D][ ] return book (by: June 6th)
+   Now you have 2 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+   Now you have 3 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [T][ ] join sports club
+   Now you have 4 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [T][ ] borrow book
+   Now you have 5 tasks in your list.
+   -----------------------------
+   -----------------------------
+    Nice! I've marked this task as done:
+    [T][X] read book
+   -----------------------------
+   -----------------------------
+    Nice! I've marked this task as done:
+    [D][X] return book (by: June 6th)
+   -----------------------------
+   -----------------------------
+    Nice! I've marked this task as done:
+    [T][X] join sports club
+   -----------------------------
+   -----------------------------
+   Here are the tasks in your list:
+   1. [T][X] read book
+   2. [D][X] return book (by: June 6th)
+   3. [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+   4. [T][X] join sports club
+   5. [T][ ] borrow book
+   -----------------------------
+   -----------------------------
+   Noted. I've removed this task:
+     [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+   Now you have 4 tasks in the list.
+   -----------------------------
+   -----------------------------
+   Here are the tasks in your list:
+   1. [T][X] read book
+   2. [D][X] return book (by: June 6th)
+   3. [T][X] join sports club
+   4. [T][ ] borrow book
+   -----------------------------
+   -----------------------------
+   Goodbye! Hope to see you again soon =)
+   -----------------------------

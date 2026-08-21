@@ -127,6 +127,27 @@ public class KIKI {
                     continue;
                 }
 
+                if (trimmedInput.equals("delete") || trimmedInput.startsWith("delete ")) {
+                    int taskIndex = parseTaskIndex(trimmedInput, "delete", taskCount);
+                    Task removedTask = currList[taskIndex];
+
+                    for (int i = taskIndex; i < taskCount - 1; i++) {
+                        currList[i] = currList[i + 1];
+                    }
+
+                    currList[taskCount - 1] = null;
+                    taskCount--;
+
+                    System.out.println(LINE);
+                    System.out.println("   Noted. I've removed this task:");
+                    System.out.println("     " + removedTask);
+                    System.out.println("   Now you have " + taskCount + " tasks in the list.");
+                    System.out.println(LINE);
+
+                    continue;
+                }
+
+
                 if (trimmedInput.equalsIgnoreCase("list")) {
                     System.out.println(LINE);
                     System.out.println("   Here are the tasks in your list:");
