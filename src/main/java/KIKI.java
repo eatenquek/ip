@@ -37,6 +37,83 @@ public class KIKI {
                 break;
             }
 
+            if (trimmedInput.startsWith("todo ")){
+                String description = trimmedInput.substring("todo ".length()).trim();
+                Task todo = new ToDos(description);
+                currList[taskCount] = todo;
+                taskCount++;
+
+                System.out.println("   -----------------------------");
+                System.out.println("   Got it. I've added this task:");
+                System.out.println("    " + todo);
+                System.out.println("   Now you have " + taskCount + " tasks in your list." );
+                System.out.println("   -----------------------------");
+
+                continue;
+            }
+
+            if (trimmedInput.startsWith("deadline ")) {
+                String deadlineInput = trimmedInput.substring("deadline ".length()).trim();
+                String[] deadlineParts = deadlineInput.split(" /by ", 2);
+
+                if (deadlineParts.length < 2) {
+                    System.out.println("   -----------------------------");
+                    System.out.println("   OOPS!!! Please use: deadline DESCRIPTION /by TIME");
+                    System.out.println("   -----------------------------");
+                    continue;
+                }
+
+                String description = deadlineParts[0].trim();
+                String by = deadlineParts[1].trim();
+                Task deadline = new Deadlines(description, by);
+                currList[taskCount] = deadline;
+                taskCount++;
+
+                System.out.println("   -----------------------------");
+                System.out.println("   Got it. I've added this task:");
+                System.out.println("    " + deadline);
+                System.out.println("   Now you have " + taskCount + " tasks in your list." );
+                System.out.println("   -----------------------------");
+
+                continue;
+            }
+
+            if (trimmedInput.startsWith("event ")) {
+                String eventInput = trimmedInput.substring("event ".length()).trim();
+                String[] fromParts = eventInput.split(" /from ", 2);
+
+                if (fromParts.length < 2) {
+                    System.out.println("   -----------------------------");
+                    System.out.println("   OOPS!!! Please use: event DESCRIPTION /from START /to END");
+                    System.out.println("   -----------------------------");
+                    continue;
+                }
+
+                String[] toParts = fromParts[1].split(" /to ", 2);
+
+                if (toParts.length < 2) {
+                    System.out.println("   -----------------------------");
+                    System.out.println("   OOPS!!! Please use: event DESCRIPTION /from START /to END");
+                    System.out.println("   -----------------------------");
+                    continue;
+                }
+
+                String description = fromParts[0].trim();
+                String from = toParts[0].trim();
+                String to = toParts[1].trim();
+                Task event = new Events(description, from, to);
+                currList[taskCount] = event;
+                taskCount++;
+
+                System.out.println("   -----------------------------");
+                System.out.println("   Got it. I've added this task:");
+                System.out.println("    " + event);
+                System.out.println("   Now you have " + taskCount + " tasks in your list." );
+                System.out.println("   -----------------------------");
+
+                continue;
+            }
+
             if (trimmedInput.startsWith("mark ")) {
                 String numberText = trimmedInput.substring("mark ".length()).trim();
                 int taskNumber = Integer.parseInt(numberText);

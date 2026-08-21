@@ -11,6 +11,10 @@ public class Task {
         return isDone ? "X" : " ";
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void markAsDone() {
         isDone = true;
     }
@@ -18,6 +22,7 @@ public class Task {
     public void markAsNotDone() {
         isDone = false;
     }
+
 
     @Override
     public String toString() {
