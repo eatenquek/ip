@@ -179,17 +179,26 @@ def should_finish_level() -> bool:
     return bool(os.environ.get("LEVEL") or os.environ.get("COMMIT_MESSAGE"))
 
 
-def ask_if_missing(value: str | None, prompt: str) -> str:
+def ask_if_missing(value: str | None, prompt: str, env_name: str) -> str:
     if value:
         return value
 
     if not sys.stdin.isatty():
-        raise SystemExit(f"Missing required value. Re-run with --finish in a terminal, or set {prompt}.")
+        raise SystemExit(f"Missing required value. Re-run with --finish in a terminal, or set {env_name}.")
 
     answer = input(f"{prompt}: ").strip()
     if not answer:
         raise SystemExit(f"{prompt} cannot be empty.")
     return answer
+
+
+def normalize_level(raw_level: str) -> str:
+    level = raw_level.strip()
+    if re.fullmatch(r"\d+", level):
+        return f"Level-{level}"
+    if re.fullmatch(r"Level-\d+", level):
+        return level
+    raise SystemExit("Level must be a number like 4. The runner will create the tag as Level-4.")
 
 
 def finish_level() -> None:
@@ -199,8 +208,10 @@ def finish_level() -> None:
     level = os.environ.get("LEVEL")
     commit_message = os.environ.get("COMMIT_MESSAGE")
 
-    level = ask_if_missing(level, "LEVEL")
-    commit_message = ask_if_missing(commit_message, "COMMIT_MESSAGE")
+    level = normalize_level(ask_if_missing(level, "Level number (e.g. 4)", "LEVEL"))
+    commit_message = ask_if_missing(commit_message, "COMMIT_MESSAGE", "COMMIT_MESSAGE")
+    print(f"Using tag: {level}")
+    print()
 
     branch = git_output(["git", "branch", "--show-current"])
     if branch != "master":
@@ -251,12 +262,17 @@ def main() -> int:
         for test_case in cases:
             run_test_case(test_case, main_class)
 
-        print("ALL UI TESTS PASSED")
-        print()
         for test_case in cases:
             print_session(test_case)
 
+        print("ALL UI TESTS PASSED")
+        print()
+
+        is_finishing = should_finish_level()
         finish_level()
+        if is_finishing:
+            print()
+            print("ALL UI TESTS PASSED")
         return 0
     except Exception as error:
         print(f"UI test runner error: {error}", file=sys.stderr)

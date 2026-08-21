@@ -40,26 +40,28 @@ The script inspects the repository to determine how to compile and run the chatb
 
 If any test fails, the runner stops immediately and reports the failed test case, aim, inputs, expected output, actual output, and a unified diff. It must not commit, tag, or push after a failure.
 
-If all tests pass, the runner prints:
+If all tests pass, the runner prints every recorded console session first, then prints:
 
 ```text
 ALL UI TESTS PASSED
 ```
 
-It then prints every recorded console session, including user inputs prefixed with `> ` and the program output.
+The recorded console sessions include user inputs prefixed with `> ` and the program output. If `--finish` is used, the runner also prints `ALL UI TESTS PASSED` again after the finish flow completes successfully. Failed test runs must not print `ALL UI TESTS PASSED`.
 
 ## Optional Level Finishing
 
-Only after all tests pass, the runner can finish a level when `--finish` is provided. It will ask for `LEVEL` and `COMMIT_MESSAGE` if they are not already set:
+Only after all tests pass, the runner can finish a level when `--finish` is provided. It will ask for the level number and commit message if they are not already set:
 
 ```bash
 python3 .codex/skills/test-ui/scripts/run_ui_tests.py --finish
 ```
 
+When prompted for the level, enter just the level number, such as `4`. The runner creates the full `Level-X` tag, such as `Level-4`.
+
 You can also provide them up front:
 
 ```bash
-LEVEL=Level-3 COMMIT_MESSAGE="Add task completion support" python3 .codex/skills/test-ui/scripts/run_ui_tests.py
+LEVEL=4 COMMIT_MESSAGE="Add task completion support" python3 .codex/skills/test-ui/scripts/run_ui_tests.py
 ```
 
 Before committing, it runs `git status`, shows the files about to be committed, checks that the branch is `master`, and checks that the tag does not already exist. If anything is unexpected, it stops and reports the issue.

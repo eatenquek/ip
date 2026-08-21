@@ -4,6 +4,9 @@ import java.util.Scanner;
  * Entry point for the chatbot application.
  */
 public class KIKI {
+    private static final String LINE = "   -----------------------------";
+    private static final int MAX_TASKS = 100;
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
@@ -18,167 +21,174 @@ public class KIKI {
         System.out.println("Hello! I'm Kiki");
         System.out.println("How can I be of service today!");
 
-        System.out.println("-----------------------------");
-        System.out.println("   Currently in Listing Mode!");
-        System.out.println("-----------------------------");
+        System.out.println(LINE);
+        System.out.println("    Currently in Listing Mode!");
+        System.out.println(LINE);
 
-        Task[] currList = new Task[100];
+        Task[] currList = new Task[MAX_TASKS];
         int taskCount = 0;
 
         while (true) {
             String input = scanner.nextLine();
             String trimmedInput = input.trim();
 
+            try {
+                if (trimmedInput.equalsIgnoreCase("bye")) {
+                    printBox("Goodbye! Hope to see you again soon =)");
+                    break;
+                }
 
-            if (trimmedInput.equalsIgnoreCase("bye")) {
-                System.out.println("   -----------------------------");
-                System.out.println("   Goodbye! Hope to see you again soon =)");
-                System.out.println("   -----------------------------");
-                break;
-            }
+                if (trimmedInput.isEmpty()) {
+                    throw new KikiException("Please enter a command.");
+                }
 
-            if (trimmedInput.startsWith("todo ")){
-                String description = trimmedInput.substring("todo ".length()).trim();
-                Task todo = new ToDos(description);
-                currList[taskCount] = todo;
-                taskCount++;
+                if (trimmedInput.equals("todo") || trimmedInput.startsWith("todo ")) {
+                    ensureCanAddTask(taskCount);
+                    String description = trimmedInput.substring("todo".length()).trim();
+                    ensureNotEmpty(description, "The description of a todo cannot be empty.");
 
-                System.out.println("   -----------------------------");
-                System.out.println("   Got it. I've added this task:");
-                System.out.println("    " + todo);
-                System.out.println("   Now you have " + taskCount + " tasks in your list." );
-                System.out.println("   -----------------------------");
-
-                continue;
-            }
-
-            if (trimmedInput.startsWith("deadline ")) {
-                String deadlineInput = trimmedInput.substring("deadline ".length()).trim();
-                String[] deadlineParts = deadlineInput.split(" /by ", 2);
-
-                if (deadlineParts.length < 2) {
-                    System.out.println("   -----------------------------");
-                    System.out.println("   OOPS!!! Please use: deadline DESCRIPTION /by TIME");
-                    System.out.println("   -----------------------------");
+                    Task todo = new ToDos(description);
+                    currList[taskCount] = todo;
+                    taskCount++;
+                    printAddedTask(todo, taskCount);
                     continue;
                 }
 
-                String description = deadlineParts[0].trim();
-                String by = deadlineParts[1].trim();
-                Task deadline = new Deadlines(description, by);
-                currList[taskCount] = deadline;
-                taskCount++;
+                if (trimmedInput.equals("deadline") || trimmedInput.startsWith("deadline ")) {
+                    ensureCanAddTask(taskCount);
+                    String deadlineInput = trimmedInput.substring("deadline".length()).trim();
+                    int byIndex = deadlineInput.indexOf("/by");
 
-                System.out.println("   -----------------------------");
-                System.out.println("   Got it. I've added this task:");
-                System.out.println("    " + deadline);
-                System.out.println("   Now you have " + taskCount + " tasks in your list." );
-                System.out.println("   -----------------------------");
+                    if (byIndex < 0) {
+                        throw new KikiException("Please use: deadline DESCRIPTION /by TIME");
+                    }
 
-                continue;
-            }
+                    String description = deadlineInput.substring(0, byIndex).trim();
+                    String by = deadlineInput.substring(byIndex + "/by".length()).trim();
+                    ensureNotEmpty(description, "The description of a deadline cannot be empty.");
+                    ensureNotEmpty(by, "The by time of a deadline cannot be empty.");
 
-            if (trimmedInput.startsWith("event ")) {
-                String eventInput = trimmedInput.substring("event ".length()).trim();
-                String[] fromParts = eventInput.split(" /from ", 2);
-
-                if (fromParts.length < 2) {
-                    System.out.println("   -----------------------------");
-                    System.out.println("   OOPS!!! Please use: event DESCRIPTION /from START /to END");
-                    System.out.println("   -----------------------------");
+                    Task deadline = new Deadlines(description, by);
+                    currList[taskCount] = deadline;
+                    taskCount++;
+                    printAddedTask(deadline, taskCount);
                     continue;
                 }
 
-                String[] toParts = fromParts[1].split(" /to ", 2);
+                if (trimmedInput.equals("event") || trimmedInput.startsWith("event ")) {
+                    ensureCanAddTask(taskCount);
+                    String eventInput = trimmedInput.substring("event".length()).trim();
+                    int fromIndex = eventInput.indexOf("/from");
 
-                if (toParts.length < 2) {
-                    System.out.println("   -----------------------------");
-                    System.out.println("   OOPS!!! Please use: event DESCRIPTION /from START /to END");
-                    System.out.println("   -----------------------------");
+                    if (fromIndex < 0) {
+                        throw new KikiException("Please use: event DESCRIPTION /from START /to END");
+                    }
+
+                    String description = eventInput.substring(0, fromIndex).trim();
+                    String fromAndTo = eventInput.substring(fromIndex + "/from".length()).trim();
+                    int toIndex = fromAndTo.indexOf("/to");
+
+                    if (toIndex < 0) {
+                        throw new KikiException("Please use: event DESCRIPTION /from START /to END");
+                    }
+
+                    String from = fromAndTo.substring(0, toIndex).trim();
+                    String to = fromAndTo.substring(toIndex + "/to".length()).trim();
+                    ensureNotEmpty(description, "The description of an event cannot be empty.");
+                    ensureNotEmpty(from, "The start time of an event cannot be empty.");
+                    ensureNotEmpty(to, "The end time of an event cannot be empty.");
+
+                    Task event = new Events(description, from, to);
+                    currList[taskCount] = event;
+                    taskCount++;
+                    printAddedTask(event, taskCount);
                     continue;
                 }
 
-                String description = fromParts[0].trim();
-                String from = toParts[0].trim();
-                String to = toParts[1].trim();
-                Task event = new Events(description, from, to);
-                currList[taskCount] = event;
-                taskCount++;
+                if (trimmedInput.equals("mark") || trimmedInput.startsWith("mark ")) {
+                    int taskIndex = parseTaskIndex(trimmedInput, "mark", taskCount);
 
-                System.out.println("   -----------------------------");
-                System.out.println("   Got it. I've added this task:");
-                System.out.println("    " + event);
-                System.out.println("   Now you have " + taskCount + " tasks in your list." );
-                System.out.println("   -----------------------------");
-
-                continue;
-            }
-
-            if (trimmedInput.startsWith("mark ")) {
-                String numberText = trimmedInput.substring("mark ".length()).trim();
-                int taskNumber = Integer.parseInt(numberText);
-                int taskIndex = taskNumber - 1;
-
-                if (taskIndex < 0 || taskIndex >= taskCount) {
-                    System.out.println("   -----------------------------");
-                    System.out.println("   OOPS!!! That task number is not in your list.");
-                    System.out.println("   -----------------------------");
+                    currList[taskIndex].markAsDone();
+                    System.out.println(LINE);
+                    System.out.println("    Nice! I've marked this task as done:");
+                    System.out.println("    " + currList[taskIndex]);
+                    System.out.println(LINE);
                     continue;
                 }
 
-                currList[taskIndex].markAsDone();
-                System.out.println("   -----------------------------");
-                System.out.println("    Nice! I've marked this task as done:");
-                System.out.println("    " + currList[taskIndex]);
-                System.out.println("   -----------------------------");
+                if (trimmedInput.equals("unmark") || trimmedInput.startsWith("unmark ")) {
+                    int taskIndex = parseTaskIndex(trimmedInput, "unmark", taskCount);
 
-                continue;
-            }
-
-
-            if (trimmedInput.startsWith("unmark ")) {
-                String numberText = trimmedInput.substring("unmark ".length()).trim();
-                int taskNumber = Integer.parseInt(numberText);
-                int taskIndex = taskNumber - 1;
-
-                if (taskIndex < 0 || taskIndex >= taskCount) {
-                    System.out.println("   -----------------------------");
-                    System.out.println("   OOPS!!! That task number is not in your list.");
-                    System.out.println("   -----------------------------");
+                    currList[taskIndex].markAsNotDone();
+                    System.out.println(LINE);
+                    System.out.println("    Get to work,  I'll mark this task as not done yet:");
+                    System.out.println("    " + currList[taskIndex]);
+                    System.out.println(LINE);
                     continue;
                 }
 
-                currList[taskIndex].markAsNotDone();
-                System.out.println("   -----------------------------");
-                System.out.println("    Get to work,  I'll mark this task as not done yet:");
-                System.out.println("    " + currList[taskIndex]);
-                System.out.println("   -----------------------------");
+                if (trimmedInput.equalsIgnoreCase("list")) {
+                    System.out.println(LINE);
+                    System.out.println("   Here are the tasks in your list:");
 
-                continue;
-            }
+                    for (int i = 0; i < taskCount; i++ ) {
+                        System.out.println("   "  + (i + 1) + ". " + currList[i]);
+                    }
 
-            if (trimmedInput.equalsIgnoreCase("list")) {
-
-                System.out.println("   -----------------------------");
-                System.out.println("   Here are the tasks in your list:");
-
-                for (int i = 0; i < taskCount; i++ ) {
-                    System.out.println("   "  + (i + 1) + ". " + currList[i]);
+                    System.out.println(LINE);
+                    continue;
                 }
 
-                System.out.println("   -----------------------------");
-                continue;
+                throw new KikiException("I'm sorry, but I don't know what that means :-(");
+            } catch (KikiException e) {
+                printBox("OOPS!!! " + e.getMessage());
             }
-
-            Task task = new Task(input);
-            currList[taskCount] = task;
-            taskCount++;
-
-            System.out.println("   -----------------------------");
-            System.out.println("   added: " + input);
-            System.out.println("   -----------------------------");
         }
 
         scanner.close();
+    }
+
+    private static void printBox(String message) {
+        System.out.println(LINE);
+        System.out.println("   " + message);
+        System.out.println(LINE);
+    }
+
+    private static void printAddedTask(Task task, int taskCount) {
+        System.out.println(LINE);
+        System.out.println("   Got it. I've added this task:");
+        System.out.println("    " + task);
+        System.out.println("   Now you have " + taskCount + " tasks in your list." );
+        System.out.println(LINE);
+    }
+
+    private static void ensureNotEmpty(String value, String errorMessage) throws KikiException {
+        if (value.isEmpty()) {
+            throw new KikiException(errorMessage);
+        }
+    }
+
+    private static void ensureCanAddTask(int taskCount) throws KikiException {
+        if (taskCount >= MAX_TASKS) {
+            throw new KikiException("Your task list is full.");
+        }
+    }
+
+    private static int parseTaskIndex(String input, String command, int taskCount) throws KikiException {
+        String numberText = input.substring(command.length()).trim();
+        ensureNotEmpty(numberText, "Please tell me which task number to " + command + ".");
+
+        try {
+            int taskNumber = Integer.parseInt(numberText);
+            int taskIndex = taskNumber - 1;
+
+            if (taskIndex < 0 || taskIndex >= taskCount) {
+                throw new KikiException("That task number is not in your list.");
+            }
+
+            return taskIndex;
+        } catch (NumberFormatException e) {
+            throw new KikiException("Task number must be a whole number.");
+        }
     }
 }
