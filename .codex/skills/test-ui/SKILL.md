@@ -50,19 +50,21 @@ The recorded console sessions include user inputs prefixed with `> ` and the pro
 
 ## Optional Level Finishing
 
-Only after all tests pass, the runner can finish a level when `--finish` is provided. It will ask for the level number and commit message if they are not already set:
+Only after all tests pass, the runner can finish a level when `--finish` is provided. It will ask for the level/tag and commit message if they are not already set:
 
 ```bash
 python3 .codex/skills/test-ui/scripts/run_ui_tests.py --finish
 ```
 
-When prompted for the level, enter just the level number, such as `4`. The runner creates the full `Level-X` tag, such as `Level-4`.
+When prompted, enter either a plain number, such as `4`, or a normal string tag name, such as `A-MoreOOP`. A plain number is turned into the full `Level-X` tag (e.g. `4` becomes `Level-4`); any other string is used as the tag name as-is. Tag names cannot contain whitespace.
 
 You can also provide them up front:
 
 ```bash
 LEVEL=4 COMMIT_MESSAGE="Add task completion support" python3 .codex/skills/test-ui/scripts/run_ui_tests.py
 ```
+
+`LEVEL` also accepts a plain string tag, e.g. `LEVEL=A-MoreOOP`.
 
 Before committing, it runs `git status`, shows the files about to be committed, checks that the branch is `master`, and checks that the tag does not already exist. If anything is unexpected, it stops and reports the issue.
 

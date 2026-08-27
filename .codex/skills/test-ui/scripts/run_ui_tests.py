@@ -196,9 +196,9 @@ def normalize_level(raw_level: str) -> str:
     level = raw_level.strip()
     if re.fullmatch(r"\d+", level):
         return f"Level-{level}"
-    if re.fullmatch(r"Level-\d+", level):
-        return level
-    raise SystemExit("Level must be a number like 4. The runner will create the tag as Level-4.")
+    if re.search(r"\s", level):
+        raise SystemExit("Level/tag name cannot contain whitespace.")
+    return level
 
 
 def finish_level() -> None:
@@ -208,7 +208,7 @@ def finish_level() -> None:
     level = os.environ.get("LEVEL")
     commit_message = os.environ.get("COMMIT_MESSAGE")
 
-    level = normalize_level(ask_if_missing(level, "Level number (e.g. 4)", "LEVEL"))
+    level = normalize_level(ask_if_missing(level, "Level number or tag name (e.g. 4 or A-MoreOOP)", "LEVEL"))
     commit_message = ask_if_missing(commit_message, "COMMIT_MESSAGE", "COMMIT_MESSAGE")
     print(f"Using tag: {level}")
     print()
