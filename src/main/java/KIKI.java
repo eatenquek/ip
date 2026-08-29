@@ -32,7 +32,7 @@ public class KIKI {
         System.out.println(LINE);
 
         Task[] currList = new Task[MAX_TASKS];
-        int taskCount = 0;
+        int taskCount = loadTasks(currList);
 
         while (true) {
             String input = scanner.nextLine();
