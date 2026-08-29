@@ -8,7 +8,7 @@ import java.util.Scanner;
 /**
  * Entry point for the chatbot application.
  */
-public class KIKI {
+public class Kiki {
     private static final String LINE = "   -----------------------------";
     private static final int MAX_TASKS = 100;
     private static final Path SAVE_FILE_PATH = Path.of("data", "kiki.txt");
@@ -159,13 +159,12 @@ public class KIKI {
                     continue;
                 }
 
-
                 if (trimmedInput.equalsIgnoreCase("list")) {
                     System.out.println(LINE);
                     System.out.println("   Here are the tasks in your list:");
 
-                    for (int i = 0; i < taskCount; i++ ) {
-                        System.out.println("   "  + (i + 1) + ". " + currList[i]);
+                    for (int i = 0; i < taskCount; i++) {
+                        System.out.println("   " + (i + 1) + ". " + currList[i]);
                     }
 
                     System.out.println(LINE);
@@ -191,7 +190,7 @@ public class KIKI {
         System.out.println(LINE);
         System.out.println("   Got it. I've added this task:");
         System.out.println("    " + task);
-        System.out.println("   Now you have " + taskCount + " tasks in your list." );
+        System.out.println("   Now you have " + taskCount + " tasks in your list.");
         System.out.println(LINE);
     }
 
@@ -207,7 +206,8 @@ public class KIKI {
         }
     }
 
-    private static int parseTaskIndex(String input, String command, int taskCount) throws KikiException {
+    private static int parseTaskIndex(String input, String command,
+            int taskCount) throws KikiException {
         String numberText = input.substring(command.length()).trim();
         ensureNotEmpty(numberText, "Please tell me which task number to " + command + ".");
 
