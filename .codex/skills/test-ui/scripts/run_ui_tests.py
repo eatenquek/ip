@@ -11,12 +11,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 PLAN_PATH = ROOT / "test" / "ui-test-plan.md"
 SOURCE_DIR = ROOT / "src" / "main" / "java"
+DATA_PATH = ROOT / "data" / "kiki.txt"
 
 
 @dataclass
 class TestCase:
     name: str
     aim: str
+    initial_saved_data: str | None
     inputs: str
     expected_output: str
     actual_output: str = ""
@@ -51,7 +53,8 @@ def parse_test_cases() -> list[TestCase]:
         body = "\n".join(lines[1:]).strip("\n")
 
         match = re.search(
-            r"(?s)^Aim:\n(?P<aim>.*?)\n\nInputs:\n(?P<inputs>.*?)\n\nExpected Output:\n(?P<expected>.*)$",
+            r"(?s)^Aim:\n(?P<aim>.*?)(?:\n\nInitial Saved Data:\n(?P<initial>.*?))?"
+            r"\n\nInputs:\n(?P<inputs>.*?)\n\nExpected Output:\n(?P<expected>.*)$",
             body,
         )
         if not match:
@@ -63,6 +66,9 @@ def parse_test_cases() -> list[TestCase]:
             TestCase(
                 name=name,
                 aim=match.group("aim").strip(),
+                initial_saved_data=(
+                    match.group("initial").strip("\n") if match.group("initial") is not None else None
+                ),
                 inputs=match.group("inputs").strip("\n"),
                 expected_output=match.group("expected").strip("\n"),
             )
@@ -107,11 +113,38 @@ def compile_program() -> None:
         raise SystemExit(result.returncode)
 
 
+def snapshot_saved_data() -> bytes | None:
+    if DATA_PATH.exists():
+        return DATA_PATH.read_bytes()
+    return None
+
+
+def restore_saved_data(saved_data: bytes | None) -> None:
+    if saved_data is None:
+        if DATA_PATH.exists():
+            DATA_PATH.unlink()
+        return
+
+    DATA_PATH.parent.mkdir(exist_ok=True)
+    DATA_PATH.write_bytes(saved_data)
+
+
+def prepare_saved_data(initial_saved_data: str | None) -> None:
+    if initial_saved_data is None:
+        if DATA_PATH.exists():
+            DATA_PATH.unlink()
+        return
+
+    DATA_PATH.parent.mkdir(exist_ok=True)
+    DATA_PATH.write_text(initial_saved_data + "\n", encoding="utf-8")
+
+
 def run_test_case(test_case: TestCase, main_class: str) -> None:
     input_text = test_case.inputs
     if not input_text.endswith("\n"):
         input_text += "\n"
 
+    prepare_saved_data(test_case.initial_saved_data)
     result = run_command(["java", "-cp", "out", main_class], input_text)
     test_case.actual_output = result.stdout
 
@@ -254,6 +287,7 @@ def finish_level() -> None:
 
 
 def main() -> int:
+    saved_data = snapshot_saved_data()
     try:
         cases = parse_test_cases()
         main_class = find_main_class()
@@ -277,6 +311,8 @@ def main() -> int:
     except Exception as error:
         print(f"UI test runner error: {error}", file=sys.stderr)
         return 1
+    finally:
+        restore_saved_data(saved_data)
 
 
 if __name__ == "__main__":

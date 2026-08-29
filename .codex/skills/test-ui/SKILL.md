@@ -26,6 +26,13 @@ Expected Output:
 <expected console output>
 ```
 
+To test startup loading from disk, a test case may include this optional block between Aim and Inputs:
+
+```text
+Initial Saved Data:
+<contents to write to data/kiki.txt before this test starts>
+```
+
 The runner compares output strictly after normalizing line endings and ignoring only trailing whitespace/newline differences at the very end. Do not relax differences in wording, task numbering, `[T]`, `[D]`, `[E]`, `[X]`, `[ ]`, ordering, error messages, task descriptions, or dates/times.
 
 ## Running Tests

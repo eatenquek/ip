@@ -109,6 +109,84 @@ How can I be of service today!
    Goodbye! Hope to see you again soon =)
    -----------------------------
 
+### Test Case: Load saved tasks
+
+Aim:
+Verify that Kiki loads existing tasks from the save file when it starts.
+
+Initial Saved Data:
+T | 1 | read book
+D | 0 | return book | Sunday
+E | 0 | project meeting | Mon 2pm | 4pm
+
+Inputs:
+list
+bye
+
+Expected Output:
+██╗  ██╗██╗██╗  ██╗██╗
+██║ ██╔╝██║██║ ██╔╝██║
+█████╔╝ ██║█████╔╝ ██║
+██╔═██╗ ██║██╔═██╗ ██║
+██║  ██╗██║██║  ██╗██║
+╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
+Hello! I'm Kiki
+How can I be of service today!
+   -----------------------------
+    Currently in Listing Mode!
+   -----------------------------
+   -----------------------------
+   Here are the tasks in your list:
+   1. [T][X] read book
+   2. [D][ ] return book (by: Sunday)
+   3. [E][ ] project meeting (from: Mon 2pm to: 4pm)
+   -----------------------------
+   -----------------------------
+   Goodbye! Hope to see you again soon =)
+   -----------------------------
+
+### Test Case: Skip corrupted saved tasks
+
+Aim:
+Verify that Kiki skips malformed saved tasks, loads valid saved tasks, and keeps running.
+
+Initial Saved Data:
+T | 1 | read book
+X | 0 | unknown task
+D | 2 | return book | Sunday
+E | 0 | project meeting | Mon 2pm | 4pm
+
+Inputs:
+list
+bye
+
+Expected Output:
+██╗  ██╗██╗██╗  ██╗██╗
+██║ ██╔╝██║██║ ██╔╝██║
+█████╔╝ ██║█████╔╝ ██║
+██╔═██╗ ██║██╔═██╗ ██║
+██║  ██╗██║██║  ██╗██║
+╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
+Hello! I'm Kiki
+How can I be of service today!
+   -----------------------------
+    Currently in Listing Mode!
+   -----------------------------
+   -----------------------------
+   OOPS!!! Skipped a corrupted saved task: unknown saved task type.
+   -----------------------------
+   -----------------------------
+   OOPS!!! Skipped a corrupted saved task: saved task status must be 0 or 1.
+   -----------------------------
+   -----------------------------
+   Here are the tasks in your list:
+   1. [T][X] read book
+   2. [E][ ] project meeting (from: Mon 2pm to: 4pm)
+   -----------------------------
+   -----------------------------
+   Goodbye! Hope to see you again soon =)
+   -----------------------------
+
 ### Test Case: Empty todo and unknown command
 
 Aim:
@@ -318,6 +396,53 @@ How can I be of service today!
    2. [D][X] return book (by: June 6th)
    3. [T][X] join sports club
    4. [T][ ] borrow book
+   -----------------------------
+   -----------------------------
+   Goodbye! Hope to see you again soon =)
+   -----------------------------
+
+### Test Case: Save-triggering task changes
+
+Aim:
+Verify that task-changing commands still produce the expected UI output while Kiki saves
+the task list in the background.
+
+Inputs:
+todo save me
+mark 1
+unmark 1
+delete 1
+bye
+
+Expected Output:
+██╗  ██╗██╗██╗  ██╗██╗
+██║ ██╔╝██║██║ ██╔╝██║
+█████╔╝ ██║█████╔╝ ██║
+██╔═██╗ ██║██╔═██╗ ██║
+██║  ██╗██║██║  ██╗██║
+╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
+Hello! I'm Kiki
+How can I be of service today!
+   -----------------------------
+    Currently in Listing Mode!
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [T][ ] save me
+   Now you have 1 tasks in your list.
+   -----------------------------
+   -----------------------------
+    Nice! I've marked this task as done:
+    [T][X] save me
+   -----------------------------
+   -----------------------------
+    Get to work,  I'll mark this task as not done yet:
+    [T][ ] save me
+   -----------------------------
+   -----------------------------
+   Noted. I've removed this task:
+     [T][ ] save me
+   Now you have 0 tasks in the list.
    -----------------------------
    -----------------------------
    Goodbye! Hope to see you again soon =)

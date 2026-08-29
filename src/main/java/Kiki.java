@@ -1,11 +1,17 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Scanner;
 
 /**
  * Entry point for the chatbot application.
  */
-public class KIKI {
+public class Kiki {
     private static final String LINE = "   -----------------------------";
     private static final int MAX_TASKS = 100;
+    private static final Path SAVE_FILE_PATH = Path.of("data", "kiki.txt");
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -26,7 +32,7 @@ public class KIKI {
         System.out.println(LINE);
 
         Task[] currList = new Task[MAX_TASKS];
-        int taskCount = 0;
+        int taskCount = loadTasks(currList);
 
         while (true) {
             String input = scanner.nextLine();
@@ -50,6 +56,7 @@ public class KIKI {
                     Task todo = new ToDos(description);
                     currList[taskCount] = todo;
                     taskCount++;
+                    saveTasks(currList, taskCount);
                     printAddedTask(todo, taskCount);
                     continue;
                 }
@@ -71,6 +78,7 @@ public class KIKI {
                     Task deadline = new Deadlines(description, by);
                     currList[taskCount] = deadline;
                     taskCount++;
+                    saveTasks(currList, taskCount);
                     printAddedTask(deadline, taskCount);
                     continue;
                 }
@@ -101,6 +109,7 @@ public class KIKI {
                     Task event = new Events(description, from, to);
                     currList[taskCount] = event;
                     taskCount++;
+                    saveTasks(currList, taskCount);
                     printAddedTask(event, taskCount);
                     continue;
                 }
@@ -109,6 +118,7 @@ public class KIKI {
                     int taskIndex = parseTaskIndex(trimmedInput, "mark", taskCount);
 
                     currList[taskIndex].markAsDone();
+                    saveTasks(currList, taskCount);
                     System.out.println(LINE);
                     System.out.println("    Nice! I've marked this task as done:");
                     System.out.println("    " + currList[taskIndex]);
@@ -120,6 +130,7 @@ public class KIKI {
                     int taskIndex = parseTaskIndex(trimmedInput, "unmark", taskCount);
 
                     currList[taskIndex].markAsNotDone();
+                    saveTasks(currList, taskCount);
                     System.out.println(LINE);
                     System.out.println("    Get to work,  I'll mark this task as not done yet:");
                     System.out.println("    " + currList[taskIndex]);
@@ -137,6 +148,7 @@ public class KIKI {
 
                     currList[taskCount - 1] = null;
                     taskCount--;
+                    saveTasks(currList, taskCount);
 
                     System.out.println(LINE);
                     System.out.println("   Noted. I've removed this task:");
@@ -147,13 +159,12 @@ public class KIKI {
                     continue;
                 }
 
-
                 if (trimmedInput.equalsIgnoreCase("list")) {
                     System.out.println(LINE);
                     System.out.println("   Here are the tasks in your list:");
 
-                    for (int i = 0; i < taskCount; i++ ) {
-                        System.out.println("   "  + (i + 1) + ". " + currList[i]);
+                    for (int i = 0; i < taskCount; i++) {
+                        System.out.println("   " + (i + 1) + ". " + currList[i]);
                     }
 
                     System.out.println(LINE);
@@ -179,7 +190,7 @@ public class KIKI {
         System.out.println(LINE);
         System.out.println("   Got it. I've added this task:");
         System.out.println("    " + task);
-        System.out.println("   Now you have " + taskCount + " tasks in your list." );
+        System.out.println("   Now you have " + taskCount + " tasks in your list.");
         System.out.println(LINE);
     }
 
@@ -195,7 +206,8 @@ public class KIKI {
         }
     }
 
-    private static int parseTaskIndex(String input, String command, int taskCount) throws KikiException {
+    private static int parseTaskIndex(String input, String command,
+            int taskCount) throws KikiException {
         String numberText = input.substring(command.length()).trim();
         ensureNotEmpty(numberText, "Please tell me which task number to " + command + ".");
 
@@ -210,6 +222,150 @@ public class KIKI {
             return taskIndex;
         } catch (NumberFormatException e) {
             throw new KikiException("Task number must be a whole number.");
+        }
+    }
+
+    private static void saveTasks(Task[] tasks, int taskCount) throws KikiException {
+        Path parentPath = SAVE_FILE_PATH.getParent();
+
+        try {
+            if (parentPath != null) {
+                Files.createDirectories(parentPath);
+            }
+
+            if (Files.isDirectory(SAVE_FILE_PATH)) {
+                throw new KikiException("Unable to save tasks because the save path is a folder.");
+            }
+        } catch (IOException e) {
+            throw new KikiException("Unable to prepare the save folder.");
+        }
+
+        try (BufferedWriter writer = Files.newBufferedWriter(SAVE_FILE_PATH)) {
+            for (int i = 0; i < taskCount; i++) {
+                writer.write(formatForStorage(tasks[i]));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            throw new KikiException("Unable to save tasks to disk.");
+        }
+    }
+
+    private static String formatForStorage(Task task) {
+        String doneStatus = task.isDone() ? "1" : "0";
+
+        if (task instanceof Deadlines deadline) {
+            return "D | " + doneStatus + " | " + deadline.getDescription()
+                    + " | " + deadline.getBy();
+        }
+
+        if (task instanceof Events event) {
+            return "E | " + doneStatus + " | " + event.getDescription() + " | " + event.getFrom()
+                    + " | " + event.getTo();
+        }
+
+        return "T | " + doneStatus + " | " + task.getDescription();
+    }
+
+    private static int loadTasks(Task[] tasks) {
+        if (!Files.exists(SAVE_FILE_PATH)) {
+            return 0;
+        }
+
+        if (Files.isDirectory(SAVE_FILE_PATH)) {
+            printBox("OOPS!!! Unable to load tasks because the save path is a folder.");
+            return 0;
+        }
+
+        int taskCount = 0;
+
+        try (BufferedReader reader = Files.newBufferedReader(SAVE_FILE_PATH)) {
+            String line = reader.readLine();
+
+            while (line != null) {
+                String trimmedLine = line.trim();
+
+                if (trimmedLine.isEmpty()) {
+                    line = reader.readLine();
+                    continue;
+                }
+
+                if (taskCount >= MAX_TASKS) {
+                    printBox("OOPS!!! Save file has more than " + MAX_TASKS
+                            + " tasks. Extra tasks were ignored.");
+                    break;
+                }
+
+                try {
+                    tasks[taskCount] = parseSavedTask(trimmedLine);
+                    taskCount++;
+                } catch (KikiException e) {
+                    printBox("OOPS!!! Skipped a corrupted saved task: " + e.getMessage());
+                }
+
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            printBox("OOPS!!! Unable to load tasks from disk.");
+        }
+
+        return taskCount;
+    }
+
+    private static Task parseSavedTask(String line) throws KikiException {
+        String[] parts = line.split(" \\| ", -1);
+        String taskType = parts[0];
+        int expectedParts = getExpectedPartCount(taskType);
+
+        if (parts.length != expectedParts) {
+            throw new KikiException("invalid saved task format.");
+        }
+
+        boolean isDone = parseSavedDoneStatus(parts[1]);
+        String description = parts[2].trim();
+        Task task;
+
+        ensureNotEmpty(description, "saved task description is empty.");
+
+        if (taskType.equals("D")) {
+            String by = parts[3].trim();
+            ensureNotEmpty(by, "saved deadline time is empty.");
+            task = new Deadlines(description, by);
+        } else if (taskType.equals("E")) {
+            String from = parts[3].trim();
+            String to = parts[4].trim();
+            ensureNotEmpty(from, "saved event start time is empty.");
+            ensureNotEmpty(to, "saved event end time is empty.");
+            task = new Events(description, from, to);
+        } else {
+            task = new ToDos(description);
+        }
+
+        if (isDone) {
+            task.markAsDone();
+        }
+
+        return task;
+    }
+
+    private static int getExpectedPartCount(String taskType) throws KikiException {
+        if (taskType.equals("T")) {
+            return 3;
+        } else if (taskType.equals("D")) {
+            return 4;
+        } else if (taskType.equals("E")) {
+            return 5;
+        } else {
+            throw new KikiException("unknown saved task type.");
+        }
+    }
+
+    private static boolean parseSavedDoneStatus(String doneStatus) throws KikiException {
+        if (doneStatus.equals("1")) {
+            return true;
+        } else if (doneStatus.equals("0")) {
+            return false;
+        } else {
+            throw new KikiException("saved task status must be 0 or 1.");
         }
     }
 }
