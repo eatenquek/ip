@@ -1,0 +1,118 @@
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
+
+/**
+ * Parses raw command strings typed by the user into task fields, dates, and
+ * task indices.
+ */
+public class Parser {
+    private static final DateTimeFormatter DATE_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+    private static final DateTimeFormatter CHECK_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
+
+    public static String parseTodoDescription(String trimmedInput) throws KikiException {
+        String description = trimmedInput.substring("todo".length()).trim();
+        ensureNotEmpty(description, "The description of a todo cannot be empty.");
+
+        return description;
+    }
+
+    public static Deadlines parseDeadline(String trimmedInput) throws KikiException {
+        String deadlineInput = trimmedInput.substring("deadline".length()).trim();
+        int byIndex = deadlineInput.indexOf("/by");
+
+        if (byIndex < 0) {
+            throw new KikiException("Please use: deadline DESCRIPTION /by TIME");
+        }
+
+        String description = deadlineInput.substring(0, byIndex).trim();
+        String by = deadlineInput.substring(byIndex + "/by".length()).trim();
+        ensureNotEmpty(description, "The description of a deadline cannot be empty.");
+        ensureNotEmpty(by, "The by time of a deadline cannot be empty.");
+
+        try {
+            LocalDateTime byInput = LocalDateTime.parse(by, DATE_TIME_FORMAT);
+            return new Deadlines(description, byInput);
+        } catch (DateTimeParseException e) {
+            throw new KikiException("Please use: deadline DESCRIPTION /by yyyy-MM-dd HHmm");
+        }
+    }
+
+    public static Events parseEvent(String trimmedInput) throws KikiException {
+        String eventInput = trimmedInput.substring("event".length()).trim();
+        int fromIndex = eventInput.indexOf("/from");
+
+        if (fromIndex < 0) {
+            throw new KikiException("Please use: event DESCRIPTION /from START /to END");
+        }
+
+        String description = eventInput.substring(0, fromIndex).trim();
+        String fromAndTo = eventInput.substring(fromIndex + "/from".length()).trim();
+        int toIndex = fromAndTo.indexOf("/to");
+
+        if (toIndex < 0) {
+            throw new KikiException("Please use: event DESCRIPTION /from START /to END");
+        }
+
+        String from = fromAndTo.substring(0, toIndex).trim();
+        String to = fromAndTo.substring(toIndex + "/to".length()).trim();
+        ensureNotEmpty(description, "The description of an event cannot be empty.");
+        ensureNotEmpty(from, "The start time of an event cannot be empty.");
+        ensureNotEmpty(to, "The end time of an event cannot be empty.");
+
+        try {
+            LocalDateTime fromInput = LocalDateTime.parse(from, DATE_TIME_FORMAT);
+            LocalDateTime toInput = LocalDateTime.parse(to, DATE_TIME_FORMAT);
+            return new Events(description, fromInput, toInput);
+        } catch (DateTimeParseException e) {
+            throw new KikiException(
+                    "Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
+        }
+    }
+
+    public static int parseTaskIndex(String input, String command, int taskCount) throws KikiException {
+        String numberText = input.substring(command.length()).trim();
+        ensureNotEmpty(numberText, "Please tell me which task number to " + command + ".");
+
+        try {
+            int taskNumber = Integer.parseInt(numberText);
+            int taskIndex = taskNumber - 1;
+
+            if (taskIndex < 0 || taskIndex >= taskCount) {
+                throw new KikiException("That task number is not in your list.");
+            }
+
+            return taskIndex;
+        } catch (NumberFormatException e) {
+            throw new KikiException("Task number must be a whole number.");
+        }
+    }
+
+    /**
+     * Parses a date such as "21 August" or "21 August 2025" into a
+     * {@link LocalDate}, defaulting to the current year when omitted.
+     */
+    public static LocalDate parseCheckDate(String dateText) throws KikiException {
+        ensureNotEmpty(dateText, "Please provide a date, e.g. check day 21 August");
+
+        try {
+            return LocalDate.parse(dateText, CHECK_DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            try {
+                return LocalDate.parse(dateText + " " + LocalDate.now().getYear(), CHECK_DATE_FORMAT);
+            } catch (DateTimeParseException e2) {
+                throw new KikiException("Please use a date like: 21 August");
+            }
+        }
+    }
+
+    private static void ensureNotEmpty(String value, String errorMessage) throws KikiException {
+        if (value.isEmpty()) {
+            throw new KikiException(errorMessage);
+        }
+    }
+}
