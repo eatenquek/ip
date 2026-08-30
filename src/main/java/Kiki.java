@@ -3,6 +3,16 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 
 /**
@@ -12,6 +22,10 @@ public class Kiki {
     private static final String LINE = "   -----------------------------";
     private static final int MAX_TASKS = 100;
     private static final Path SAVE_FILE_PATH = Path.of("data", "kiki.txt");
+    private static final DateTimeFormatter CHECK_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("MMM dd yyyy");
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -75,12 +89,24 @@ public class Kiki {
                     ensureNotEmpty(description, "The description of a deadline cannot be empty.");
                     ensureNotEmpty(by, "The by time of a deadline cannot be empty.");
 
-                    Task deadline = new Deadlines(description, by);
-                    currList[taskCount] = deadline;
-                    taskCount++;
-                    saveTasks(currList, taskCount);
-                    printAddedTask(deadline, taskCount);
-                    continue;
+                    try {
+                        DateTimeFormatter formatter =
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+                        LocalDateTime byInput =
+                                LocalDateTime.parse(by, formatter);
+
+                        Task deadline = new Deadlines(description, byInput);
+                        currList[taskCount] = deadline;
+                        taskCount++;
+                        saveTasks(currList, taskCount);
+                        printAddedTask(deadline, taskCount);
+                        continue;
+                    } catch (DateTimeParseException e) {
+                        throw new KikiException(
+                                "Please use: deadline DESCRIPTION /by yyyy-MM-dd HHmm");
+                    }
+
                 }
 
                 if (trimmedInput.equals("event") || trimmedInput.startsWith("event ")) {
@@ -106,12 +132,23 @@ public class Kiki {
                     ensureNotEmpty(from, "The start time of an event cannot be empty.");
                     ensureNotEmpty(to, "The end time of an event cannot be empty.");
 
-                    Task event = new Events(description, from, to);
-                    currList[taskCount] = event;
-                    taskCount++;
-                    saveTasks(currList, taskCount);
-                    printAddedTask(event, taskCount);
-                    continue;
+                    try {
+                        DateTimeFormatter formatter =
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+                        LocalDateTime fromInput = LocalDateTime.parse(from, formatter);
+                        LocalDateTime toInput = LocalDateTime.parse(to, formatter);
+
+                        Task event = new Events(description, fromInput, toInput);
+                        currList[taskCount] = event;
+                        taskCount++;
+                        saveTasks(currList, taskCount);
+                        printAddedTask(event, taskCount);
+                        continue;
+                    } catch (DateTimeParseException e) {
+                        throw new KikiException(
+                                "Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
+                    }
                 }
 
                 if (trimmedInput.equals("mark") || trimmedInput.startsWith("mark ")) {
@@ -171,6 +208,26 @@ public class Kiki {
                     continue;
                 }
 
+                if (trimmedInput.startsWith("check day ") || trimmedInput.startsWith("check week ")) {
+                    boolean isWeek = trimmedInput.startsWith("check week ");
+                    String dateText = trimmedInput
+                            .substring(isWeek ? "check week ".length() : "check day ".length())
+                            .trim();
+                    ensureNotEmpty(dateText, "Please provide a date, e.g. check day 21 August");
+
+                    LocalDate anchorDate = parseCheckDate(dateText);
+                    LocalDate rangeStart = anchorDate;
+                    LocalDate rangeEnd = anchorDate;
+
+                    if (isWeek) {
+                        rangeStart = anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                        rangeEnd = rangeStart.plusDays(6);
+                    }
+
+                    printTasksInRange(currList, taskCount, rangeStart, rangeEnd, isWeek);
+                    continue;
+                }
+
                 throw new KikiException("I'm sorry, but I don't know what that means :-(");
             } catch (KikiException e) {
                 printBox("OOPS!!! " + e.getMessage());
@@ -191,6 +248,95 @@ public class Kiki {
         System.out.println("   Got it. I've added this task:");
         System.out.println("    " + task);
         System.out.println("   Now you have " + taskCount + " tasks in your list.");
+        System.out.println(LINE);
+    }
+
+    /**
+     * Parses a date such as "21 August" or "21 August 2025" into a
+     * {@link LocalDate}, defaulting to the current year when omitted.
+     */
+    private static LocalDate parseCheckDate(String dateText) throws KikiException {
+        try {
+            return LocalDate.parse(dateText, CHECK_DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            try {
+                return LocalDate.parse(dateText + " " + LocalDate.now().getYear(), CHECK_DATE_FORMAT);
+            } catch (DateTimeParseException e2) {
+                throw new KikiException("Please use a date like: 21 August");
+            }
+        }
+    }
+
+    /**
+     * Returns whether a deadline or event falls within the given date range.
+     * Todos have no date and never match.
+     */
+    private static boolean taskOverlapsRange(Task task, LocalDate rangeStart, LocalDate rangeEnd) {
+        if (task instanceof Deadlines deadline) {
+            LocalDate dueDate = deadline.getBy().toLocalDate();
+            return !dueDate.isBefore(rangeStart) && !dueDate.isAfter(rangeEnd);
+        }
+
+        if (task instanceof Events event) {
+            LocalDate eventStart = event.getFrom().toLocalDate();
+            LocalDate eventEnd = event.getTo().toLocalDate();
+            return !eventStart.isAfter(rangeEnd) && !eventEnd.isBefore(rangeStart);
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns the date/time used to sort a deadline or event.
+     */
+    private static LocalDateTime getSortKey(Task task) {
+        if (task instanceof Deadlines deadline) {
+            return deadline.getBy();
+        }
+
+        if (task instanceof Events event) {
+            return event.getFrom();
+        }
+
+        return LocalDateTime.MAX;
+    }
+
+    /**
+     * Prints the deadlines and events that fall within the given date range,
+     * with upcoming ones first (soonest first), followed by past ones.
+     */
+    private static void printTasksInRange(Task[] tasks, int taskCount, LocalDate rangeStart,
+            LocalDate rangeEnd, boolean isWeek) {
+        List<Task> matches = new ArrayList<>();
+
+        for (int i = 0; i < taskCount; i++) {
+            if (taskOverlapsRange(tasks[i], rangeStart, rangeEnd)) {
+                matches.add(tasks[i]);
+            }
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        matches.sort(Comparator
+                .comparing((Task task) -> getSortKey(task).isBefore(now))
+                .thenComparing(Kiki::getSortKey));
+
+        System.out.println(LINE);
+
+        if (isWeek) {
+            System.out.println("   Here's what's happening from " + rangeStart.format(DISPLAY_DATE_FORMAT)
+                    + " to " + rangeEnd.format(DISPLAY_DATE_FORMAT) + ":");
+        } else {
+            System.out.println("   Here's what's happening on " + rangeStart.format(DISPLAY_DATE_FORMAT) + ":");
+        }
+
+        if (matches.isEmpty()) {
+            System.out.println("   Nothing scheduled.");
+        } else {
+            for (int i = 0; i < matches.size(); i++) {
+                System.out.println("   " + (i + 1) + ". " + matches.get(i));
+            }
+        }
+
         System.out.println(LINE);
     }
 
@@ -327,15 +473,29 @@ public class Kiki {
         ensureNotEmpty(description, "saved task description is empty.");
 
         if (taskType.equals("D")) {
-            String by = parts[3].trim();
-            ensureNotEmpty(by, "saved deadline time is empty.");
-            task = new Deadlines(description, by);
+            String byText = parts[3].trim();
+            ensureNotEmpty(byText, "saved deadline time is empty.");
+
+            try {
+                LocalDateTime by = LocalDateTime.parse(byText);
+                task = new Deadlines(description, by);
+            } catch (DateTimeParseException e) {
+                throw new KikiException("invalid saved deadline date/time.");
+            }
+            
         } else if (taskType.equals("E")) {
-            String from = parts[3].trim();
-            String to = parts[4].trim();
-            ensureNotEmpty(from, "saved event start time is empty.");
-            ensureNotEmpty(to, "saved event end time is empty.");
-            task = new Events(description, from, to);
+            String fromText = parts[3].trim();
+            String toText = parts[4].trim();
+            ensureNotEmpty(fromText, "saved event start time is empty.");
+            ensureNotEmpty(toText, "saved event end time is empty.");
+
+            try {
+                LocalDateTime from = LocalDateTime.parse(fromText);
+                LocalDateTime to = LocalDateTime.parse(toText);
+                task = new Events(description, from, to);
+            } catch (DateTimeParseException e) {
+                throw new KikiException("invalid saved event date/time.");
+            }
         } else {
             task = new ToDos(description);
         }
