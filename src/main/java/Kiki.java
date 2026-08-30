@@ -3,6 +3,9 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Scanner;
 
 /**
@@ -75,12 +78,24 @@ public class Kiki {
                     ensureNotEmpty(description, "The description of a deadline cannot be empty.");
                     ensureNotEmpty(by, "The by time of a deadline cannot be empty.");
 
-                    Task deadline = new Deadlines(description, by);
-                    currList[taskCount] = deadline;
-                    taskCount++;
-                    saveTasks(currList, taskCount);
-                    printAddedTask(deadline, taskCount);
-                    continue;
+                    try {
+                        DateTimeFormatter formatter =
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+                        LocalDateTime byInput =
+                                LocalDateTime.parse(by, formatter);
+
+                        Task deadline = new Deadlines(description, byInput);
+                        currList[taskCount] = deadline;
+                        taskCount++;
+                        saveTasks(currList, taskCount);
+                        printAddedTask(deadline, taskCount);
+                        continue;
+                    } catch (DateTimeParseException e) {
+                        throw new KikiException(
+                                "Please use: deadline DESCRIPTION /by yyyy-MM-dd HHmm");
+                    }
+
                 }
 
                 if (trimmedInput.equals("event") || trimmedInput.startsWith("event ")) {
@@ -106,12 +121,23 @@ public class Kiki {
                     ensureNotEmpty(from, "The start time of an event cannot be empty.");
                     ensureNotEmpty(to, "The end time of an event cannot be empty.");
 
-                    Task event = new Events(description, from, to);
-                    currList[taskCount] = event;
-                    taskCount++;
-                    saveTasks(currList, taskCount);
-                    printAddedTask(event, taskCount);
-                    continue;
+                    try {
+                        DateTimeFormatter formatter =
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+                        LocalDateTime fromInput = LocalDateTime.parse(from, formatter);
+                        LocalDateTime toInput = LocalDateTime.parse(to, formatter);
+
+                        Task event = new Events(description, fromInput, toInput);
+                        currList[taskCount] = event;
+                        taskCount++;
+                        saveTasks(currList, taskCount);
+                        printAddedTask(event, taskCount);
+                        continue;
+                    } catch (DateTimeParseException e) {
+                        throw new KikiException(
+                                "Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
+                    }
                 }
 
                 if (trimmedInput.equals("mark") || trimmedInput.startsWith("mark ")) {
@@ -327,15 +353,29 @@ public class Kiki {
         ensureNotEmpty(description, "saved task description is empty.");
 
         if (taskType.equals("D")) {
-            String by = parts[3].trim();
-            ensureNotEmpty(by, "saved deadline time is empty.");
-            task = new Deadlines(description, by);
+            String byText = parts[3].trim();
+            ensureNotEmpty(byText, "saved deadline time is empty.");
+
+            try {
+                LocalDateTime by = LocalDateTime.parse(byText);
+                task = new Deadlines(description, by);
+            } catch (DateTimeParseException e) {
+                throw new KikiException("invalid saved deadline date/time.");
+            }
+            
         } else if (taskType.equals("E")) {
-            String from = parts[3].trim();
-            String to = parts[4].trim();
-            ensureNotEmpty(from, "saved event start time is empty.");
-            ensureNotEmpty(to, "saved event end time is empty.");
-            task = new Events(description, from, to);
+            String fromText = parts[3].trim();
+            String toText = parts[4].trim();
+            ensureNotEmpty(fromText, "saved event start time is empty.");
+            ensureNotEmpty(toText, "saved event end time is empty.");
+
+            try {
+                LocalDateTime from = LocalDateTime.parse(fromText);
+                LocalDateTime to = LocalDateTime.parse(toText);
+                task = new Events(description, from, to);
+            } catch (DateTimeParseException e) {
+                throw new KikiException("invalid saved event date/time.");
+            }
         } else {
             task = new ToDos(description);
         }
