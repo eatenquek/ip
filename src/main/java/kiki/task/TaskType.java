@@ -1,3 +1,5 @@
+package kiki.task;
+
 /**
  * Represents the category of a {@link Task}, and the single-letter icon
  * used when printing it (e.g. "[T]" for a todo).

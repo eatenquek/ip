@@ -1,7 +1,12 @@
+package kiki.ui;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
+
+import kiki.task.Task;
+import kiki.task.TaskList;
 
 /**
  * Handles all console input and output for Kiki.

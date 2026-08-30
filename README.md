@@ -23,7 +23,7 @@ sdk use java 25.0.3.fx-zulu
 
 1. Open this project folder in IntelliJ.
 2. Configure the project SDK to use JDK 25.
-3. Open `src/main/java/Kiki.java`.
+3. Open `src/main/java/kiki/Kiki.java`.
 4. Run `Kiki.main()`.
 
 ### Terminal
@@ -31,8 +31,9 @@ sdk use java 25.0.3.fx-zulu
 From the project root, compile the Java files and run Kiki:
 
 ```bash
-javac -d out src/main/java/*.java
-java -cp out Kiki
+find src/main/java -name "*.java" > sources.txt
+javac -d out @sources.txt
+java -cp out kiki.Kiki
 ```
 
 ## Commands

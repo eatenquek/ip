@@ -1,3 +1,5 @@
+package kiki.task;
+
 /**
  * Represents a task tracked by Kiki, made up of a description, a done/not-done
  * status, and a {@link TaskType} that determines its display icon.

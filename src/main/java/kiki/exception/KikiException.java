@@ -1,3 +1,5 @@
+package kiki.exception;
+
 /**
  * Represents an input error that Kiki can explain to the user.
  */

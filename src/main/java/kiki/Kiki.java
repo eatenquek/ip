@@ -1,3 +1,5 @@
+package kiki;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -5,6 +7,16 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import kiki.exception.KikiException;
+import kiki.parser.Parser;
+import kiki.storage.Storage;
+import kiki.task.Deadlines;
+import kiki.task.Events;
+import kiki.task.Task;
+import kiki.task.TaskList;
+import kiki.task.ToDos;
+import kiki.ui.Ui;
 
 /**
  * Entry point for the chatbot application. Coordinates the {@link Ui},

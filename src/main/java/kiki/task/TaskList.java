@@ -1,3 +1,7 @@
+package kiki.task;
+
+import kiki.exception.KikiException;
+
 /**
  * Manages the in-memory collection of {@link Task}s, backed by a fixed-size
  * array. Exposes the simple operations Kiki needs to add, remove, fetch,
