@@ -30,11 +30,13 @@ How can I be of service today!
 
 Aim:
 Verify that todo, deadline, and event tasks can be added and displayed using the list command.
+Deadline/event times use the "yyyy-MM-dd HHmm" input format and are displayed as
+"MMM dd yyyy, h:mm a".
 
 Inputs:
 todo read book
-deadline return book /by Sunday
-event project meeting /from Mon 2pm /to 4pm
+deadline return book /by 2019-12-01 1800
+event project meeting /from 2019-12-02 1400 /to 2019-12-02 1600
 list
 bye
 
@@ -57,19 +59,19 @@ How can I be of service today!
    -----------------------------
    -----------------------------
    Got it. I've added this task:
-    [D][ ] return book (by: Sunday)
+    [D][ ] return book (by: Dec 01 2019, 6:00 pm)
    Now you have 2 tasks in your list.
    -----------------------------
    -----------------------------
    Got it. I've added this task:
-    [E][ ] project meeting (from: Mon 2pm to: 4pm)
+    [E][ ] project meeting (from: Dec 02 2019, 2:00 pm to: Dec 02 2019, 4:00 pm)
    Now you have 3 tasks in your list.
    -----------------------------
    -----------------------------
    Here are the tasks in your list:
    1. [T][ ] read book
-   2. [D][ ] return book (by: Sunday)
-   3. [E][ ] project meeting (from: Mon 2pm to: 4pm)
+   2. [D][ ] return book (by: Dec 01 2019, 6:00 pm)
+   3. [E][ ] project meeting (from: Dec 02 2019, 2:00 pm to: Dec 02 2019, 4:00 pm)
    -----------------------------
    -----------------------------
    Goodbye! Hope to see you again soon =)
@@ -112,12 +114,13 @@ How can I be of service today!
 ### Test Case: Load saved tasks
 
 Aim:
-Verify that Kiki loads existing tasks from the save file when it starts.
+Verify that Kiki loads existing tasks from the save file when it starts. Saved deadline/event
+times are stored as ISO-8601 LocalDateTime text (e.g. "2019-12-01T18:00").
 
 Initial Saved Data:
 T | 1 | read book
-D | 0 | return book | Sunday
-E | 0 | project meeting | Mon 2pm | 4pm
+D | 0 | return book | 2019-12-01T18:00
+E | 0 | project meeting | 2019-12-02T14:00 | 2019-12-02T16:00
 
 Inputs:
 list
@@ -138,8 +141,8 @@ How can I be of service today!
    -----------------------------
    Here are the tasks in your list:
    1. [T][X] read book
-   2. [D][ ] return book (by: Sunday)
-   3. [E][ ] project meeting (from: Mon 2pm to: 4pm)
+   2. [D][ ] return book (by: Dec 01 2019, 6:00 pm)
+   3. [E][ ] project meeting (from: Dec 02 2019, 2:00 pm to: Dec 02 2019, 4:00 pm)
    -----------------------------
    -----------------------------
    Goodbye! Hope to see you again soon =)
@@ -153,8 +156,8 @@ Verify that Kiki skips malformed saved tasks, loads valid saved tasks, and keeps
 Initial Saved Data:
 T | 1 | read book
 X | 0 | unknown task
-D | 2 | return book | Sunday
-E | 0 | project meeting | Mon 2pm | 4pm
+D | 2 | return book | 2019-12-01T18:00
+E | 0 | project meeting | 2019-12-02T14:00 | 2019-12-02T16:00
 
 Inputs:
 list
@@ -181,7 +184,7 @@ How can I be of service today!
    -----------------------------
    Here are the tasks in your list:
    1. [T][X] read book
-   2. [E][ ] project meeting (from: Mon 2pm to: 4pm)
+   2. [E][ ] project meeting (from: Dec 02 2019, 2:00 pm to: Dec 02 2019, 4:00 pm)
    -----------------------------
    -----------------------------
    Goodbye! Hope to see you again soon =)
@@ -264,15 +267,19 @@ How can I be of service today!
 ### Test Case: Invalid deadline and event inputs
 
 Aim:
-Verify that malformed deadline and event commands explain which part is missing.
+Verify that malformed deadline and event commands explain which part is missing, and that a
+description/time that is present but not in the "yyyy-MM-dd HHmm" format is rejected with a
+usage message instead of being accepted as free text.
 
 Inputs:
-deadline /by Sunday
+deadline /by 2019-12-01 1800
 deadline return book /by
+deadline return book /by Sunday
 event meeting /from now
-event /from now /to later
-event meeting /from /to later
-event meeting /from now /to
+event /from 2019-12-01 1400 /to 2019-12-01 1600
+event meeting /from /to 2019-12-01 1600
+event meeting /from 2019-12-01 1400 /to
+event meeting /from Sunday /to 2019-12-01 1600
 bye
 
 Expected Output:
@@ -294,6 +301,9 @@ How can I be of service today!
    OOPS!!! The by time of a deadline cannot be empty.
    -----------------------------
    -----------------------------
+   OOPS!!! Please use: deadline DESCRIPTION /by yyyy-MM-dd HHmm
+   -----------------------------
+   -----------------------------
    OOPS!!! Please use: event DESCRIPTION /from START /to END
    -----------------------------
    -----------------------------
@@ -306,6 +316,9 @@ How can I be of service today!
    OOPS!!! The end time of an event cannot be empty.
    -----------------------------
    -----------------------------
+   OOPS!!! Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm
+   -----------------------------
+   -----------------------------
    Goodbye! Hope to see you again soon =)
    -----------------------------
 
@@ -316,8 +329,8 @@ Verify that deleting a task from the middle removes the correct task and shifts 
 
 Inputs:
 todo read book
-deadline return book /by June 6th
-event project meeting /from Aug 6th 2pm /to 4pm
+deadline return book /by 2024-06-06 1200
+event project meeting /from 2024-08-06 1400 /to 2024-08-06 1600
 todo join sports club
 todo borrow book
 mark 1
@@ -347,12 +360,12 @@ How can I be of service today!
    -----------------------------
    -----------------------------
    Got it. I've added this task:
-    [D][ ] return book (by: June 6th)
+    [D][ ] return book (by: Jun 06 2024, 12:00 pm)
    Now you have 2 tasks in your list.
    -----------------------------
    -----------------------------
    Got it. I've added this task:
-    [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+    [E][ ] project meeting (from: Aug 06 2024, 2:00 pm to: Aug 06 2024, 4:00 pm)
    Now you have 3 tasks in your list.
    -----------------------------
    -----------------------------
@@ -371,7 +384,7 @@ How can I be of service today!
    -----------------------------
    -----------------------------
     Nice! I've marked this task as done:
-    [D][X] return book (by: June 6th)
+    [D][X] return book (by: Jun 06 2024, 12:00 pm)
    -----------------------------
    -----------------------------
     Nice! I've marked this task as done:
@@ -380,20 +393,20 @@ How can I be of service today!
    -----------------------------
    Here are the tasks in your list:
    1. [T][X] read book
-   2. [D][X] return book (by: June 6th)
-   3. [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+   2. [D][X] return book (by: Jun 06 2024, 12:00 pm)
+   3. [E][ ] project meeting (from: Aug 06 2024, 2:00 pm to: Aug 06 2024, 4:00 pm)
    4. [T][X] join sports club
    5. [T][ ] borrow book
    -----------------------------
    -----------------------------
    Noted. I've removed this task:
-     [E][ ] project meeting (from: Aug 6th 2pm to: 4pm)
+     [E][ ] project meeting (from: Aug 06 2024, 2:00 pm to: Aug 06 2024, 4:00 pm)
    Now you have 4 tasks in the list.
    -----------------------------
    -----------------------------
    Here are the tasks in your list:
    1. [T][X] read book
-   2. [D][X] return book (by: June 6th)
+   2. [D][X] return book (by: Jun 06 2024, 12:00 pm)
    3. [T][X] join sports club
    4. [T][ ] borrow book
    -----------------------------
@@ -443,6 +456,102 @@ How can I be of service today!
    Noted. I've removed this task:
      [T][ ] save me
    Now you have 0 tasks in the list.
+   -----------------------------
+   -----------------------------
+   Goodbye! Hope to see you again soon =)
+   -----------------------------
+
+### Test Case: Check day and check week filter and sort tasks
+
+Aim:
+Verify that "check day DATE" and "check week DATE" only show deadlines/events that fall on
+that date (or in that Mon-Sun week), display both date and time, include multi-day events
+that merely overlap the range, exclude unrelated tasks, and sort matches soonest-first (todos
+are never shown since they have no date).
+
+Inputs:
+deadline submit report /by 2035-08-21 1700
+event workshop /from 2035-08-19 0900 /to 2035-08-23 1800
+deadline unrelated task /by 2035-09-01 0900
+check day 21 August 2035
+check week 21 August 2035
+bye
+
+Expected Output:
+██╗  ██╗██╗██╗  ██╗██╗
+██║ ██╔╝██║██║ ██╔╝██║
+█████╔╝ ██║█████╔╝ ██║
+██╔═██╗ ██║██╔═██╗ ██║
+██║  ██╗██║██║  ██╗██║
+╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
+Hello! I'm Kiki
+How can I be of service today!
+   -----------------------------
+    Currently in Listing Mode!
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
+   Now you have 1 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [E][ ] workshop (from: Aug 19 2035, 9:00 am to: Aug 23 2035, 6:00 pm)
+   Now you have 2 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [D][ ] unrelated task (by: Sept 01 2035, 9:00 am)
+   Now you have 3 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Here's what's happening on Aug 21 2035:
+   1. [E][ ] workshop (from: Aug 19 2035, 9:00 am to: Aug 23 2035, 6:00 pm)
+   2. [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
+   -----------------------------
+   -----------------------------
+   Here's what's happening from Aug 20 2035 to Aug 26 2035:
+   1. [E][ ] workshop (from: Aug 19 2035, 9:00 am to: Aug 23 2035, 6:00 pm)
+   2. [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
+   -----------------------------
+   -----------------------------
+   Goodbye! Hope to see you again soon =)
+   -----------------------------
+
+### Test Case: Check day/week with no matches and invalid dates
+
+Aim:
+Verify that "check day"/"check week" report "Nothing scheduled." when no task falls in range,
+and reject a date that cannot be parsed. Note that "check day" with no date text at all falls
+through to the unknown-command handler, since it does not match the "check day " prefix.
+
+Inputs:
+check day
+check day banana
+check week 21 August 2035
+bye
+
+Expected Output:
+██╗  ██╗██╗██╗  ██╗██╗
+██║ ██╔╝██║██║ ██╔╝██║
+█████╔╝ ██║█████╔╝ ██║
+██╔═██╗ ██║██╔═██╗ ██║
+██║  ██╗██║██║  ██╗██║
+╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
+Hello! I'm Kiki
+How can I be of service today!
+   -----------------------------
+    Currently in Listing Mode!
+   -----------------------------
+   -----------------------------
+   OOPS!!! I'm sorry, but I don't know what that means :-(
+   -----------------------------
+   -----------------------------
+   OOPS!!! Please use a date like: 21 August
+   -----------------------------
+   -----------------------------
+   Here's what's happening from Aug 20 2035 to Aug 26 2035:
+   Nothing scheduled.
    -----------------------------
    -----------------------------
    Goodbye! Hope to see you again soon =)
