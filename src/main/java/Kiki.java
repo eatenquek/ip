@@ -1,60 +1,35 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
 
 /**
- * Entry point for the chatbot application.
+ * Entry point for the chatbot application. Coordinates the {@link Ui},
+ * {@link Storage}, {@link Parser}, and {@link TaskList} to respond to user
+ * commands.
  */
 public class Kiki {
-    private static final String LINE = "   -----------------------------";
-    private static final int MAX_TASKS = 100;
-    private static final Path SAVE_FILE_PATH = Path.of("data", "kiki.txt");
-    private static final DateTimeFormatter CHECK_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
-    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("MMM dd yyyy");
+    private final Ui ui = new Ui();
+    private final Storage storage = new Storage();
+    private final TaskList taskList = new TaskList();
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        new Kiki().run();
+    }
 
-        System.out.print("""
-                ██╗  ██╗██╗██╗  ██╗██╗
-                ██║ ██╔╝██║██║ ██╔╝██║
-                █████╔╝ ██║█████╔╝ ██║
-                ██╔═██╗ ██║██╔═██╗ ██║
-                ██║  ██╗██║██║  ██╗██║
-                ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-                """);
-        System.out.println("Hello! I'm Kiki");
-        System.out.println("How can I be of service today!");
-
-        System.out.println(LINE);
-        System.out.println("    Currently in Listing Mode!");
-        System.out.println(LINE);
-
-        Task[] currList = new Task[MAX_TASKS];
-        int taskCount = loadTasks(currList);
+    private void run() {
+        ui.printWelcome();
+        storage.load(taskList, ui);
 
         while (true) {
-            String input = scanner.nextLine();
-            String trimmedInput = input.trim();
+            String trimmedInput = ui.readCommand();
 
             try {
                 if (trimmedInput.equalsIgnoreCase("bye")) {
-                    printBox("Goodbye! Hope to see you again soon =)");
+                    ui.printGoodbye();
                     break;
                 }
 
@@ -63,148 +38,61 @@ public class Kiki {
                 }
 
                 if (trimmedInput.equals("todo") || trimmedInput.startsWith("todo ")) {
-                    ensureCanAddTask(taskCount);
-                    String description = trimmedInput.substring("todo".length()).trim();
-                    ensureNotEmpty(description, "The description of a todo cannot be empty.");
-
+                    taskList.ensureCanAdd();
+                    String description = Parser.parseTodoDescription(trimmedInput);
                     Task todo = new ToDos(description);
-                    currList[taskCount] = todo;
-                    taskCount++;
-                    saveTasks(currList, taskCount);
-                    printAddedTask(todo, taskCount);
+                    taskList.add(todo);
+                    storage.save(taskList);
+                    ui.printAddedTask(todo, taskList.size());
                     continue;
                 }
 
                 if (trimmedInput.equals("deadline") || trimmedInput.startsWith("deadline ")) {
-                    ensureCanAddTask(taskCount);
-                    String deadlineInput = trimmedInput.substring("deadline".length()).trim();
-                    int byIndex = deadlineInput.indexOf("/by");
-
-                    if (byIndex < 0) {
-                        throw new KikiException("Please use: deadline DESCRIPTION /by TIME");
-                    }
-
-                    String description = deadlineInput.substring(0, byIndex).trim();
-                    String by = deadlineInput.substring(byIndex + "/by".length()).trim();
-                    ensureNotEmpty(description, "The description of a deadline cannot be empty.");
-                    ensureNotEmpty(by, "The by time of a deadline cannot be empty.");
-
-                    try {
-                        DateTimeFormatter formatter =
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
-
-                        LocalDateTime byInput =
-                                LocalDateTime.parse(by, formatter);
-
-                        Task deadline = new Deadlines(description, byInput);
-                        currList[taskCount] = deadline;
-                        taskCount++;
-                        saveTasks(currList, taskCount);
-                        printAddedTask(deadline, taskCount);
-                        continue;
-                    } catch (DateTimeParseException e) {
-                        throw new KikiException(
-                                "Please use: deadline DESCRIPTION /by yyyy-MM-dd HHmm");
-                    }
-
+                    taskList.ensureCanAdd();
+                    Deadlines deadline = Parser.parseDeadline(trimmedInput);
+                    taskList.add(deadline);
+                    storage.save(taskList);
+                    ui.printAddedTask(deadline, taskList.size());
+                    continue;
                 }
 
                 if (trimmedInput.equals("event") || trimmedInput.startsWith("event ")) {
-                    ensureCanAddTask(taskCount);
-                    String eventInput = trimmedInput.substring("event".length()).trim();
-                    int fromIndex = eventInput.indexOf("/from");
-
-                    if (fromIndex < 0) {
-                        throw new KikiException("Please use: event DESCRIPTION /from START /to END");
-                    }
-
-                    String description = eventInput.substring(0, fromIndex).trim();
-                    String fromAndTo = eventInput.substring(fromIndex + "/from".length()).trim();
-                    int toIndex = fromAndTo.indexOf("/to");
-
-                    if (toIndex < 0) {
-                        throw new KikiException("Please use: event DESCRIPTION /from START /to END");
-                    }
-
-                    String from = fromAndTo.substring(0, toIndex).trim();
-                    String to = fromAndTo.substring(toIndex + "/to".length()).trim();
-                    ensureNotEmpty(description, "The description of an event cannot be empty.");
-                    ensureNotEmpty(from, "The start time of an event cannot be empty.");
-                    ensureNotEmpty(to, "The end time of an event cannot be empty.");
-
-                    try {
-                        DateTimeFormatter formatter =
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
-
-                        LocalDateTime fromInput = LocalDateTime.parse(from, formatter);
-                        LocalDateTime toInput = LocalDateTime.parse(to, formatter);
-
-                        Task event = new Events(description, fromInput, toInput);
-                        currList[taskCount] = event;
-                        taskCount++;
-                        saveTasks(currList, taskCount);
-                        printAddedTask(event, taskCount);
-                        continue;
-                    } catch (DateTimeParseException e) {
-                        throw new KikiException(
-                                "Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
-                    }
+                    taskList.ensureCanAdd();
+                    Events event = Parser.parseEvent(trimmedInput);
+                    taskList.add(event);
+                    storage.save(taskList);
+                    ui.printAddedTask(event, taskList.size());
+                    continue;
                 }
 
                 if (trimmedInput.equals("mark") || trimmedInput.startsWith("mark ")) {
-                    int taskIndex = parseTaskIndex(trimmedInput, "mark", taskCount);
-
-                    currList[taskIndex].markAsDone();
-                    saveTasks(currList, taskCount);
-                    System.out.println(LINE);
-                    System.out.println("    Nice! I've marked this task as done:");
-                    System.out.println("    " + currList[taskIndex]);
-                    System.out.println(LINE);
+                    int taskIndex = Parser.parseTaskIndex(trimmedInput, "mark", taskList.size());
+                    Task task = taskList.get(taskIndex);
+                    task.markAsDone();
+                    storage.save(taskList);
+                    ui.printMarked(task);
                     continue;
                 }
 
                 if (trimmedInput.equals("unmark") || trimmedInput.startsWith("unmark ")) {
-                    int taskIndex = parseTaskIndex(trimmedInput, "unmark", taskCount);
-
-                    currList[taskIndex].markAsNotDone();
-                    saveTasks(currList, taskCount);
-                    System.out.println(LINE);
-                    System.out.println("    Get to work,  I'll mark this task as not done yet:");
-                    System.out.println("    " + currList[taskIndex]);
-                    System.out.println(LINE);
+                    int taskIndex = Parser.parseTaskIndex(trimmedInput, "unmark", taskList.size());
+                    Task task = taskList.get(taskIndex);
+                    task.markAsNotDone();
+                    storage.save(taskList);
+                    ui.printUnmarked(task);
                     continue;
                 }
 
                 if (trimmedInput.equals("delete") || trimmedInput.startsWith("delete ")) {
-                    int taskIndex = parseTaskIndex(trimmedInput, "delete", taskCount);
-                    Task removedTask = currList[taskIndex];
-
-                    for (int i = taskIndex; i < taskCount - 1; i++) {
-                        currList[i] = currList[i + 1];
-                    }
-
-                    currList[taskCount - 1] = null;
-                    taskCount--;
-                    saveTasks(currList, taskCount);
-
-                    System.out.println(LINE);
-                    System.out.println("   Noted. I've removed this task:");
-                    System.out.println("     " + removedTask);
-                    System.out.println("   Now you have " + taskCount + " tasks in the list.");
-                    System.out.println(LINE);
-
+                    int taskIndex = Parser.parseTaskIndex(trimmedInput, "delete", taskList.size());
+                    Task removedTask = taskList.remove(taskIndex);
+                    storage.save(taskList);
+                    ui.printDeleted(removedTask, taskList.size());
                     continue;
                 }
 
                 if (trimmedInput.equalsIgnoreCase("list")) {
-                    System.out.println(LINE);
-                    System.out.println("   Here are the tasks in your list:");
-
-                    for (int i = 0; i < taskCount; i++) {
-                        System.out.println("   " + (i + 1) + ". " + currList[i]);
-                    }
-
-                    System.out.println(LINE);
+                    ui.printList(taskList);
                     continue;
                 }
 
@@ -213,9 +101,8 @@ public class Kiki {
                     String dateText = trimmedInput
                             .substring(isWeek ? "check week ".length() : "check day ".length())
                             .trim();
-                    ensureNotEmpty(dateText, "Please provide a date, e.g. check day 21 August");
 
-                    LocalDate anchorDate = parseCheckDate(dateText);
+                    LocalDate anchorDate = Parser.parseCheckDate(dateText);
                     LocalDate rangeStart = anchorDate;
                     LocalDate rangeEnd = anchorDate;
 
@@ -224,47 +111,17 @@ public class Kiki {
                         rangeEnd = rangeStart.plusDays(6);
                     }
 
-                    printTasksInRange(currList, taskCount, rangeStart, rangeEnd, isWeek);
+                    printTasksInRange(rangeStart, rangeEnd, isWeek);
                     continue;
                 }
 
                 throw new KikiException("I'm sorry, but I don't know what that means :-(");
             } catch (KikiException e) {
-                printBox("OOPS!!! " + e.getMessage());
+                ui.printBox("OOPS!!! " + e.getMessage());
             }
         }
 
-        scanner.close();
-    }
-
-    private static void printBox(String message) {
-        System.out.println(LINE);
-        System.out.println("   " + message);
-        System.out.println(LINE);
-    }
-
-    private static void printAddedTask(Task task, int taskCount) {
-        System.out.println(LINE);
-        System.out.println("   Got it. I've added this task:");
-        System.out.println("    " + task);
-        System.out.println("   Now you have " + taskCount + " tasks in your list.");
-        System.out.println(LINE);
-    }
-
-    /**
-     * Parses a date such as "21 August" or "21 August 2025" into a
-     * {@link LocalDate}, defaulting to the current year when omitted.
-     */
-    private static LocalDate parseCheckDate(String dateText) throws KikiException {
-        try {
-            return LocalDate.parse(dateText, CHECK_DATE_FORMAT);
-        } catch (DateTimeParseException e) {
-            try {
-                return LocalDate.parse(dateText + " " + LocalDate.now().getYear(), CHECK_DATE_FORMAT);
-            } catch (DateTimeParseException e2) {
-                throw new KikiException("Please use a date like: 21 August");
-            }
-        }
+        ui.close();
     }
 
     /**
@@ -302,16 +159,16 @@ public class Kiki {
     }
 
     /**
-     * Prints the deadlines and events that fall within the given date range,
-     * with upcoming ones first (soonest first), followed by past ones.
+     * Finds the deadlines/events in the given date range, sorts them with
+     * upcoming ones first (soonest first) followed by past ones, and prints
+     * them via {@link Ui}.
      */
-    private static void printTasksInRange(Task[] tasks, int taskCount, LocalDate rangeStart,
-            LocalDate rangeEnd, boolean isWeek) {
+    private void printTasksInRange(LocalDate rangeStart, LocalDate rangeEnd, boolean isWeek) {
         List<Task> matches = new ArrayList<>();
 
-        for (int i = 0; i < taskCount; i++) {
-            if (taskOverlapsRange(tasks[i], rangeStart, rangeEnd)) {
-                matches.add(tasks[i]);
+        for (int i = 0; i < taskList.size(); i++) {
+            if (taskOverlapsRange(taskList.get(i), rangeStart, rangeEnd)) {
+                matches.add(taskList.get(i));
             }
         }
 
@@ -320,212 +177,6 @@ public class Kiki {
                 .comparing((Task task) -> getSortKey(task).isBefore(now))
                 .thenComparing(Kiki::getSortKey));
 
-        System.out.println(LINE);
-
-        if (isWeek) {
-            System.out.println("   Here's what's happening from " + rangeStart.format(DISPLAY_DATE_FORMAT)
-                    + " to " + rangeEnd.format(DISPLAY_DATE_FORMAT) + ":");
-        } else {
-            System.out.println("   Here's what's happening on " + rangeStart.format(DISPLAY_DATE_FORMAT) + ":");
-        }
-
-        if (matches.isEmpty()) {
-            System.out.println("   Nothing scheduled.");
-        } else {
-            for (int i = 0; i < matches.size(); i++) {
-                System.out.println("   " + (i + 1) + ". " + matches.get(i));
-            }
-        }
-
-        System.out.println(LINE);
-    }
-
-    private static void ensureNotEmpty(String value, String errorMessage) throws KikiException {
-        if (value.isEmpty()) {
-            throw new KikiException(errorMessage);
-        }
-    }
-
-    private static void ensureCanAddTask(int taskCount) throws KikiException {
-        if (taskCount >= MAX_TASKS) {
-            throw new KikiException("Your task list is full.");
-        }
-    }
-
-    private static int parseTaskIndex(String input, String command,
-            int taskCount) throws KikiException {
-        String numberText = input.substring(command.length()).trim();
-        ensureNotEmpty(numberText, "Please tell me which task number to " + command + ".");
-
-        try {
-            int taskNumber = Integer.parseInt(numberText);
-            int taskIndex = taskNumber - 1;
-
-            if (taskIndex < 0 || taskIndex >= taskCount) {
-                throw new KikiException("That task number is not in your list.");
-            }
-
-            return taskIndex;
-        } catch (NumberFormatException e) {
-            throw new KikiException("Task number must be a whole number.");
-        }
-    }
-
-    private static void saveTasks(Task[] tasks, int taskCount) throws KikiException {
-        Path parentPath = SAVE_FILE_PATH.getParent();
-
-        try {
-            if (parentPath != null) {
-                Files.createDirectories(parentPath);
-            }
-
-            if (Files.isDirectory(SAVE_FILE_PATH)) {
-                throw new KikiException("Unable to save tasks because the save path is a folder.");
-            }
-        } catch (IOException e) {
-            throw new KikiException("Unable to prepare the save folder.");
-        }
-
-        try (BufferedWriter writer = Files.newBufferedWriter(SAVE_FILE_PATH)) {
-            for (int i = 0; i < taskCount; i++) {
-                writer.write(formatForStorage(tasks[i]));
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            throw new KikiException("Unable to save tasks to disk.");
-        }
-    }
-
-    private static String formatForStorage(Task task) {
-        String doneStatus = task.isDone() ? "1" : "0";
-
-        if (task instanceof Deadlines deadline) {
-            return "D | " + doneStatus + " | " + deadline.getDescription()
-                    + " | " + deadline.getBy();
-        }
-
-        if (task instanceof Events event) {
-            return "E | " + doneStatus + " | " + event.getDescription() + " | " + event.getFrom()
-                    + " | " + event.getTo();
-        }
-
-        return "T | " + doneStatus + " | " + task.getDescription();
-    }
-
-    private static int loadTasks(Task[] tasks) {
-        if (!Files.exists(SAVE_FILE_PATH)) {
-            return 0;
-        }
-
-        if (Files.isDirectory(SAVE_FILE_PATH)) {
-            printBox("OOPS!!! Unable to load tasks because the save path is a folder.");
-            return 0;
-        }
-
-        int taskCount = 0;
-
-        try (BufferedReader reader = Files.newBufferedReader(SAVE_FILE_PATH)) {
-            String line = reader.readLine();
-
-            while (line != null) {
-                String trimmedLine = line.trim();
-
-                if (trimmedLine.isEmpty()) {
-                    line = reader.readLine();
-                    continue;
-                }
-
-                if (taskCount >= MAX_TASKS) {
-                    printBox("OOPS!!! Save file has more than " + MAX_TASKS
-                            + " tasks. Extra tasks were ignored.");
-                    break;
-                }
-
-                try {
-                    tasks[taskCount] = parseSavedTask(trimmedLine);
-                    taskCount++;
-                } catch (KikiException e) {
-                    printBox("OOPS!!! Skipped a corrupted saved task: " + e.getMessage());
-                }
-
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            printBox("OOPS!!! Unable to load tasks from disk.");
-        }
-
-        return taskCount;
-    }
-
-    private static Task parseSavedTask(String line) throws KikiException {
-        String[] parts = line.split(" \\| ", -1);
-        String taskType = parts[0];
-        int expectedParts = getExpectedPartCount(taskType);
-
-        if (parts.length != expectedParts) {
-            throw new KikiException("invalid saved task format.");
-        }
-
-        boolean isDone = parseSavedDoneStatus(parts[1]);
-        String description = parts[2].trim();
-        Task task;
-
-        ensureNotEmpty(description, "saved task description is empty.");
-
-        if (taskType.equals("D")) {
-            String byText = parts[3].trim();
-            ensureNotEmpty(byText, "saved deadline time is empty.");
-
-            try {
-                LocalDateTime by = LocalDateTime.parse(byText);
-                task = new Deadlines(description, by);
-            } catch (DateTimeParseException e) {
-                throw new KikiException("invalid saved deadline date/time.");
-            }
-            
-        } else if (taskType.equals("E")) {
-            String fromText = parts[3].trim();
-            String toText = parts[4].trim();
-            ensureNotEmpty(fromText, "saved event start time is empty.");
-            ensureNotEmpty(toText, "saved event end time is empty.");
-
-            try {
-                LocalDateTime from = LocalDateTime.parse(fromText);
-                LocalDateTime to = LocalDateTime.parse(toText);
-                task = new Events(description, from, to);
-            } catch (DateTimeParseException e) {
-                throw new KikiException("invalid saved event date/time.");
-            }
-        } else {
-            task = new ToDos(description);
-        }
-
-        if (isDone) {
-            task.markAsDone();
-        }
-
-        return task;
-    }
-
-    private static int getExpectedPartCount(String taskType) throws KikiException {
-        if (taskType.equals("T")) {
-            return 3;
-        } else if (taskType.equals("D")) {
-            return 4;
-        } else if (taskType.equals("E")) {
-            return 5;
-        } else {
-            throw new KikiException("unknown saved task type.");
-        }
-    }
-
-    private static boolean parseSavedDoneStatus(String doneStatus) throws KikiException {
-        if (doneStatus.equals("1")) {
-            return true;
-        } else if (doneStatus.equals("0")) {
-            return false;
-        } else {
-            throw new KikiException("saved task status must be 0 or 1.");
-        }
+        ui.printTasksInRange(rangeStart, rangeEnd, isWeek, matches);
     }
 }
