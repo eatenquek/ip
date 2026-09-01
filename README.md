@@ -36,6 +36,20 @@ javac -d out @sources.txt
 java -cp out kiki.Kiki
 ```
 
+### Fat JAR (Gradle)
+
+Build a standalone, runnable JAR (with all dependencies bundled in) using the `shadowJar` task:
+
+```bash
+./gradlew shadowJar
+```
+
+The JAR is created at `build/libs/kiki.jar`. Run it directly with:
+
+```bash
+java -jar build/libs/kiki.jar
+```
+
 ## Commands
 
 Kiki reads one command per line.
