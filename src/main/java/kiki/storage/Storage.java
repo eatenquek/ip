@@ -23,6 +23,13 @@ import kiki.ui.Ui;
 public class Storage {
     private static final Path SAVE_FILE_PATH = Path.of("data", "kiki.txt");
 
+    /**
+     * Saves the given task list to disk, overwriting any previous contents.
+     *
+     * @param tasks Task list to save.
+     * @throws KikiException If the save folder cannot be prepared or the file
+     *         cannot be written.
+     */
     public void save(TaskList tasks) throws KikiException {
         Path parentPath = SAVE_FILE_PATH.getParent();
 
@@ -92,6 +99,12 @@ public class Storage {
         }
     }
 
+    /**
+     * Formats a task as a single pipe-separated line for the save file.
+     *
+     * @param task Task to format.
+     * @return The formatted line, without a trailing newline.
+     */
     private String formatForStorage(Task task) {
         String doneStatus = task.isDone() ? "1" : "0";
 
@@ -108,6 +121,14 @@ public class Storage {
         return "T | " + doneStatus + " | " + task.getDescription();
     }
 
+    /**
+     * Parses a single pipe-separated line from the save file back into a task.
+     *
+     * @param line Trimmed, non-empty line read from the save file.
+     * @return The reconstructed task.
+     * @throws KikiException If the line has the wrong number of fields, an
+     *         unknown task type, a bad done-status, or an unparsable date/time.
+     */
     private Task parseSavedTask(String line) throws KikiException {
         String[] parts = line.split(" \\| ", -1);
         String taskType = parts[0];
@@ -158,6 +179,14 @@ public class Storage {
         return task;
     }
 
+    /**
+     * Returns how many pipe-separated fields a saved line of the given task
+     * type should have.
+     *
+     * @param taskType Single-letter saved task type ("T", "D", or "E").
+     * @return The expected field count.
+     * @throws KikiException If the task type is not recognized.
+     */
     private int getExpectedPartCount(String taskType) throws KikiException {
         if (taskType.equals("T")) {
             return 3;
@@ -170,6 +199,13 @@ public class Storage {
         }
     }
 
+    /**
+     * Parses a saved done-status field ("0" or "1") into a boolean.
+     *
+     * @param doneStatus Saved done-status field.
+     * @return {@code true} if the field is "1", {@code false} if "0".
+     * @throws KikiException If the field is neither "0" nor "1".
+     */
     private boolean parseSavedDoneStatus(String doneStatus) throws KikiException {
         if (doneStatus.equals("1")) {
             return true;
