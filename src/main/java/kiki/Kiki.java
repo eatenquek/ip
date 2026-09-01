@@ -140,7 +140,7 @@ public class Kiki {
      * Returns whether a deadline or event falls within the given date range.
      * Todos have no date and never match.
      */
-    private static boolean taskOverlapsRange(Task task, LocalDate rangeStart, LocalDate rangeEnd) {
+    static boolean taskOverlapsRange(Task task, LocalDate rangeStart, LocalDate rangeEnd) {
         if (task instanceof Deadlines deadline) {
             LocalDate dueDate = deadline.getBy().toLocalDate();
             return !dueDate.isBefore(rangeStart) && !dueDate.isAfter(rangeEnd);
@@ -158,7 +158,7 @@ public class Kiki {
     /**
      * Returns the date/time used to sort a deadline or event.
      */
-    private static LocalDateTime getSortKey(Task task) {
+    static LocalDateTime getSortKey(Task task) {
         if (task instanceof Deadlines deadline) {
             return deadline.getBy();
         }
