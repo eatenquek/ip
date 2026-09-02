@@ -29,6 +29,19 @@ public class ParserTest {
     }
 
     @Test
+    public void parseFindKeyword_validKeyword_returnsTrimmedKeyword() throws KikiException {
+        String keyword = Parser.parseFindKeyword("find   book  ");
+        assertEquals("book", keyword);
+    }
+
+    @Test
+    public void parseFindKeyword_emptyKeyword_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class,
+                () -> Parser.parseFindKeyword("find"));
+        assertEquals("Please tell me what keyword to search for.", exception.getMessage());
+    }
+
+    @Test
     public void parseDeadline_validInput_returnsDeadlineWithParsedDateTime() throws KikiException {
         Deadlines deadline = Parser.parseDeadline("deadline return book /by 2019-12-01 1800");
 

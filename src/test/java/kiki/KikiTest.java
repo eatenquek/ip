@@ -83,4 +83,25 @@ public class KikiTest {
 
         assertEquals(LocalDateTime.MAX, Kiki.getSortKey(todo));
     }
+
+    @Test
+    public void descriptionContainsKeyword_substringMatch_returnsTrue() {
+        Task todo = new ToDos("read book");
+
+        assertTrue(Kiki.descriptionContainsKeyword(todo, "book"));
+    }
+
+    @Test
+    public void descriptionContainsKeyword_differentCase_returnsTrue() {
+        Task todo = new ToDos("read book");
+
+        assertTrue(Kiki.descriptionContainsKeyword(todo, "BOOK"));
+    }
+
+    @Test
+    public void descriptionContainsKeyword_noMatch_returnsFalse() {
+        Task todo = new ToDos("read book");
+
+        assertFalse(Kiki.descriptionContainsKeyword(todo, "movie"));
+    }
 }

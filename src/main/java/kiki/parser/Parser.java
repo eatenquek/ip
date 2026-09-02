@@ -104,6 +104,20 @@ public class Parser {
     }
 
     /**
+     * Parses the keyword out of a "find ..." command.
+     *
+     * @param trimmedInput Full command line, starting with "find".
+     * @return The trimmed, non-empty keyword.
+     * @throws KikiException If the keyword is empty.
+     */
+    public static String parseFindKeyword(String trimmedInput) throws KikiException {
+        String keyword = trimmedInput.substring("find".length()).trim();
+        ensureNotEmpty(keyword, "Please tell me what keyword to search for.");
+
+        return keyword;
+    }
+
+    /**
      * Parses the 1-based task number out of a command like "mark 2" into a
      * 0-based index into the task list.
      *

@@ -57,9 +57,12 @@ Kiki reads one command per line.
 | Command | Format | Example |
 | --- | --- | --- |
 | Add a todo | `todo DESCRIPTION` | `todo read book` |
-| Add a deadline | `deadline DESCRIPTION /by TIME` | `deadline return book /by Sunday` |
-| Add an event | `event DESCRIPTION /from START /to END` | `event project meeting /from Mon 2pm /to 4pm` |
+| Add a deadline | `deadline DESCRIPTION /by yyyy-MM-dd HHmm` | `deadline return book /by 2019-12-01 1800` |
+| Add an event | `event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm` | `event project meeting /from 2019-12-02 1400 /to 2019-12-02 1600` |
 | List tasks | `list` | `list` |
+| Find tasks by keyword | `find KEYWORD` | `find book` |
+| Check a day's tasks | `check day DATE` | `check day 21 August` |
+| Check a week's tasks | `check week DATE` | `check week 21 August` |
 | Mark a task as done | `mark NUMBER` | `mark 1` |
 | Mark a task as not done | `unmark NUMBER` | `unmark 1` |
 | Delete a task | `delete NUMBER` | `delete 2` |

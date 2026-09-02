@@ -556,3 +556,61 @@ How can I be of service today!
    -----------------------------
    Goodbye! Hope to see you again soon =)
    -----------------------------
+
+### Test Case: Find matches keyword case-insensitively
+
+Aim:
+Verify that "find KEYWORD" matches tasks of any type by a case-insensitive substring of
+their description, reports when nothing matches, and rejects an empty keyword.
+
+Inputs:
+todo read book
+deadline return book /by 2019-12-01 1800
+todo join sports club
+find book
+find xyz
+find
+bye
+
+Expected Output:
+██╗  ██╗██╗██╗  ██╗██╗
+██║ ██╔╝██║██║ ██╔╝██║
+█████╔╝ ██║█████╔╝ ██║
+██╔═██╗ ██║██╔═██╗ ██║
+██║  ██╗██║██║  ██╗██║
+╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
+Hello! I'm Kiki
+How can I be of service today!
+   -----------------------------
+    Currently in Listing Mode!
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [T][ ] read book
+   Now you have 1 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [D][ ] return book (by: Dec 01 2019, 6:00 pm)
+   Now you have 2 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [T][ ] join sports club
+   Now you have 3 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Here are the matching tasks in your list:
+   1. [T][ ] read book
+   2. [D][ ] return book (by: Dec 01 2019, 6:00 pm)
+   -----------------------------
+   -----------------------------
+   Here are the matching tasks in your list:
+   No matching tasks found.
+   -----------------------------
+   -----------------------------
+   OOPS!!! Please tell me what keyword to search for.
+   -----------------------------
+   -----------------------------
+   Goodbye! Hope to see you again soon =)
+   -----------------------------
