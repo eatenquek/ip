@@ -95,6 +95,26 @@ public class Ui {
     }
 
     /**
+     * Prints the tasks whose description matched a find keyword.
+     *
+     * @param matches Matching tasks, in list order.
+     */
+    public void printMatchingTasks(List<Task> matches) {
+        System.out.println(LINE);
+        System.out.println("   Here are the matching tasks in your list:");
+
+        if (matches.isEmpty()) {
+            System.out.println("   No matching tasks found.");
+        } else {
+            for (int i = 0; i < matches.size(); i++) {
+                System.out.println("   " + (i + 1) + ". " + matches.get(i));
+            }
+        }
+
+        System.out.println(LINE);
+    }
+
+    /**
      * Prints the deadlines/events that fall within a checked date range.
      */
     public void printTasksInRange(LocalDate rangeStart, LocalDate rangeEnd, boolean isWeek,

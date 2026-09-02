@@ -108,6 +108,12 @@ public class Kiki {
                     continue;
                 }
 
+                if (trimmedInput.equals("find") || trimmedInput.startsWith("find ")) {
+                    String keyword = Parser.parseFindKeyword(trimmedInput);
+                    printMatchingTasks(keyword);
+                    continue;
+                }
+
                 if (trimmedInput.startsWith("check day ") || trimmedInput.startsWith("check week ")) {
                     boolean isWeek = trimmedInput.startsWith("check week ");
                     String dateText = trimmedInput
@@ -134,6 +140,14 @@ public class Kiki {
         }
 
         ui.close();
+    }
+
+    /**
+     * Returns whether a task's description contains the given keyword,
+     * ignoring case.
+     */
+    static boolean descriptionContainsKeyword(Task task, String keyword) {
+        return task.getDescription().toLowerCase().contains(keyword.toLowerCase());
     }
 
     /**
@@ -190,5 +204,21 @@ public class Kiki {
                 .thenComparing(Kiki::getSortKey));
 
         ui.printTasksInRange(rangeStart, rangeEnd, isWeek, matches);
+    }
+
+    /**
+     * Finds the tasks whose description contains the given keyword, and
+     * prints them via {@link Ui}.
+     */
+    private void printMatchingTasks(String keyword) {
+        List<Task> matches = new ArrayList<>();
+
+        for (int i = 0; i < taskList.size(); i++) {
+            if (descriptionContainsKeyword(taskList.get(i), keyword)) {
+                matches.add(taskList.get(i));
+            }
+        }
+
+        ui.printMatchingTasks(matches);
     }
 }
