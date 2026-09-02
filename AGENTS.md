@@ -41,6 +41,10 @@ Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
 
+All commit messages and branch names must follow the SE-EDU Git conventions, encoded in the
+`seedu-git-standard` skill. Invoke that skill whenever drafting a commit message or naming a
+branch.
+
 ## Testing
 
 Target JUnit test coverage of roughly 50%, focused on the highest-value methods: prioritize
