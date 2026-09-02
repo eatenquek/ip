@@ -9,6 +9,12 @@ public class Task {
     private final TaskType type;
     private boolean isDone;
 
+    /**
+     * Creates a new, not-done task.
+     *
+     * @param description Description of the task.
+     * @param type Category of the task, used to pick its display icon.
+     */
     public Task(String description, TaskType type) {
         this.description = description;
         this.type = type;
@@ -31,10 +37,16 @@ public class Task {
         return type;
     }
 
+    /**
+     * Marks this task as done.
+     */
     public void markAsDone() {
         isDone = true;
     }
 
+    /**
+     * Marks this task as not done.
+     */
     public void markAsNotDone() {
         isDone = false;
     }

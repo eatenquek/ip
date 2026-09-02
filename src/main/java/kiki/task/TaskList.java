@@ -13,6 +13,9 @@ public class TaskList {
     private final Task[] tasks;
     private int taskCount;
 
+    /**
+     * Creates a new, empty task list.
+     */
     public TaskList() {
         this.tasks = new Task[MAX_TASKS];
         this.taskCount = 0;
@@ -28,11 +31,23 @@ public class TaskList {
         }
     }
 
+    /**
+     * Adds a task to the end of the list.
+     *
+     * @param task Task to add.
+     */
     public void add(Task task) {
         tasks[taskCount] = task;
         taskCount++;
     }
 
+    /**
+     * Removes the task at the given index, shifting later tasks up by one
+     * position to close the gap.
+     *
+     * @param index Index of the task to remove.
+     * @return The removed task.
+     */
     public Task remove(int index) {
         Task removed = tasks[index];
 

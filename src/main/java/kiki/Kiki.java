@@ -28,6 +28,11 @@ public class Kiki {
     private final Storage storage = new Storage();
     private final TaskList taskList = new TaskList();
 
+    /**
+     * Starts the chatbot.
+     *
+     * @param args Command-line arguments (unused).
+     */
     public static void main(String[] args) {
         new Kiki().run();
     }

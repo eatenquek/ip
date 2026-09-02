@@ -20,6 +20,13 @@ public class Parser {
     private static final DateTimeFormatter CHECK_DATE_FORMAT =
             DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
 
+    /**
+     * Parses the description out of a "todo ..." command.
+     *
+     * @param trimmedInput Full command line, starting with "todo".
+     * @return The trimmed, non-empty description.
+     * @throws KikiException If the description is empty.
+     */
     public static String parseTodoDescription(String trimmedInput) throws KikiException {
         String description = trimmedInput.substring("todo".length()).trim();
         ensureNotEmpty(description, "The description of a todo cannot be empty.");
@@ -27,6 +34,14 @@ public class Parser {
         return description;
     }
 
+    /**
+     * Parses a "deadline ... /by ..." command into a {@link Deadlines} task.
+     *
+     * @param trimmedInput Full command line, starting with "deadline".
+     * @return The parsed deadline task.
+     * @throws KikiException If the description or time is missing/empty, or the
+     *         time is not in "yyyy-MM-dd HHmm" format.
+     */
     public static Deadlines parseDeadline(String trimmedInput) throws KikiException {
         String deadlineInput = trimmedInput.substring("deadline".length()).trim();
         int byIndex = deadlineInput.indexOf("/by");
@@ -48,6 +63,14 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses an "event ... /from ... /to ..." command into an {@link Events} task.
+     *
+     * @param trimmedInput Full command line, starting with "event".
+     * @return The parsed event task.
+     * @throws KikiException If the description or either time is missing/empty,
+     *         or either time is not in "yyyy-MM-dd HHmm" format.
+     */
     public static Events parseEvent(String trimmedInput) throws KikiException {
         String eventInput = trimmedInput.substring("event".length()).trim();
         int fromIndex = eventInput.indexOf("/from");
@@ -80,6 +103,18 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses the 1-based task number out of a command like "mark 2" into a
+     * 0-based index into the task list.
+     *
+     * @param input Full command line, starting with {@code command}.
+     * @param command The command word (e.g. "mark"), used to strip the prefix
+     *         and in error messages.
+     * @param taskCount Current number of tasks, used to validate the range.
+     * @return The 0-based task index.
+     * @throws KikiException If the number is missing, not a whole number, or
+     *         out of range.
+     */
     public static int parseTaskIndex(String input, String command, int taskCount) throws KikiException {
         String numberText = input.substring(command.length()).trim();
         ensureNotEmpty(numberText, "Please tell me which task number to " + command + ".");
