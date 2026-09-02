@@ -154,7 +154,6 @@ public class Storage {
             } catch (DateTimeParseException e) {
                 throw new KikiException("invalid saved deadline date/time.");
             }
-
         } else if (taskType.equals("E")) {
             String fromText = parts[3].trim();
             String toText = parts[4].trim();
