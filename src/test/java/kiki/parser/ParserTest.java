@@ -23,8 +23,8 @@ public class ParserTest {
 
     @Test
     public void parseTodoDescription_emptyDescription_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseTodoDescription("todo"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseTodoDescription("todo"));
         assertEquals("The description of a todo cannot be empty.", exception.getMessage());
     }
 
@@ -36,8 +36,8 @@ public class ParserTest {
 
     @Test
     public void parseFindKeyword_emptyKeyword_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseFindKeyword("find"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseFindKeyword("find"));
         assertEquals("Please tell me what keyword to search for.", exception.getMessage());
     }
 
@@ -51,29 +51,29 @@ public class ParserTest {
 
     @Test
     public void parseDeadline_missingByKeyword_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseDeadline("deadline return book"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseDeadline("deadline return book"));
         assertEquals("Please use: deadline DESCRIPTION /by TIME", exception.getMessage());
     }
 
     @Test
     public void parseDeadline_emptyDescription_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseDeadline("deadline /by 2019-12-01 1800"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseDeadline("deadline /by 2019-12-01 1800"));
         assertEquals("The description of a deadline cannot be empty.", exception.getMessage());
     }
 
     @Test
     public void parseDeadline_emptyByTime_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseDeadline("deadline return book /by"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseDeadline("deadline return book /by"));
         assertEquals("The by time of a deadline cannot be empty.", exception.getMessage());
     }
 
     @Test
     public void parseDeadline_wrongDateFormat_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseDeadline("deadline return book /by Sunday"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseDeadline("deadline return book /by Sunday"));
         assertEquals("Please use: deadline DESCRIPTION /by yyyy-MM-dd HHmm", exception.getMessage());
     }
 
@@ -89,22 +89,22 @@ public class ParserTest {
 
     @Test
     public void parseEvent_missingFromKeyword_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseEvent("event meeting /to 2019-12-02 1600"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseEvent("event meeting /to 2019-12-02 1600"));
         assertEquals("Please use: event DESCRIPTION /from START /to END", exception.getMessage());
     }
 
     @Test
     public void parseEvent_missingToKeyword_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseEvent("event meeting /from 2019-12-02 1400"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseEvent("event meeting /from 2019-12-02 1400"));
         assertEquals("Please use: event DESCRIPTION /from START /to END", exception.getMessage());
     }
 
     @Test
     public void parseEvent_wrongDateFormat_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseEvent("event meeting /from Sunday /to 2019-12-02 1600"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseEvent("event meeting /from Sunday /to 2019-12-02 1600"));
         assertEquals("Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm",
                 exception.getMessage());
     }
@@ -123,15 +123,15 @@ public class ParserTest {
 
     @Test
     public void parseCheckDate_emptyText_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseCheckDate(""));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseCheckDate(""));
         assertEquals("Please provide a date, e.g. check day 21 August", exception.getMessage());
     }
 
     @Test
     public void parseCheckDate_unparsableText_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseCheckDate("banana"));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseCheckDate("banana"));
         assertEquals("Please use a date like: 21 August", exception.getMessage());
     }
 
@@ -155,43 +155,43 @@ public class ParserTest {
 
     @Test
     public void parseTaskIndex_missingNumber_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseTaskIndex("mark", "mark", 3));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseTaskIndex("mark", "mark", 3));
         assertEquals("Please tell me which task number to mark.", exception.getMessage());
     }
 
     @Test
     public void parseTaskIndex_nonNumericInput_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseTaskIndex("mark abc", "mark", 3));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseTaskIndex("mark abc", "mark", 3));
         assertEquals("Task number must be a whole number.", exception.getMessage());
     }
 
     @Test
     public void parseTaskIndex_indexTooLow_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseTaskIndex("mark 0", "mark", 3));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseTaskIndex("mark 0", "mark", 3));
         assertEquals("That task number is not in your list.", exception.getMessage());
     }
 
     @Test
     public void parseTaskIndex_negativeIndex_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseTaskIndex("mark -1", "mark", 3));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseTaskIndex("mark -1", "mark", 3));
         assertEquals("That task number is not in your list.", exception.getMessage());
     }
 
     @Test
     public void parseTaskIndex_indexTooHigh_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseTaskIndex("mark 4", "mark", 3));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseTaskIndex("mark 4", "mark", 3));
         assertEquals("That task number is not in your list.", exception.getMessage());
     }
 
     @Test
     public void parseTaskIndex_emptyList_exceptionThrown() {
-        KikiException exception = assertThrows(KikiException.class,
-                () -> Parser.parseTaskIndex("mark 1", "mark", 0));
+        KikiException exception = assertThrows(
+                KikiException.class, () -> Parser.parseTaskIndex("mark 1", "mark", 0));
         assertEquals("That task number is not in your list.", exception.getMessage());
     }
 }

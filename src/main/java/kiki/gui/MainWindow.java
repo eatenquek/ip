@@ -1,12 +1,11 @@
 package kiki.gui;
 
-import kiki.Kiki;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import kiki.Kiki;
 
 /**
  * Controller for the main GUI window.

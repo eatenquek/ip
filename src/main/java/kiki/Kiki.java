@@ -49,7 +49,7 @@ public class Kiki {
             String trimmedInput = ui.readCommand();
 
             if (handleCommand(trimmedInput, ui)) {
-                    break;
+                break;
             }
         }
 
