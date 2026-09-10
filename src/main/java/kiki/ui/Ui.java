@@ -1,5 +1,7 @@
 package kiki.ui;
 
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -17,19 +19,31 @@ public class Ui {
             DateTimeFormatter.ofPattern("MMM dd yyyy");
 
     private final Scanner scanner;
+    private final PrintStream output;
 
     /**
      * Creates a new Ui that reads user input from standard input.
      */
     public Ui() {
-        this.scanner = new Scanner(System.in);
+        this(System.in, System.out);
+    }
+
+    /**
+     * Creates a new Ui that reads from and writes to the supplied streams.
+     *
+     * @param input Source of user commands.
+     * @param output Destination for chatbot responses.
+     */
+    public Ui(InputStream input, PrintStream output) {
+        this.scanner = new Scanner(input);
+        this.output = output;
     }
 
     /**
      * Prints the startup banner and greeting.
      */
     public void printWelcome() {
-        System.out.print("""
+        output.print("""
                 ██╗  ██╗██╗██╗  ██╗██╗
                 ██║ ██╔╝██║██║ ██╔╝██║
                 █████╔╝ ██║█████╔╝ ██║
@@ -37,12 +51,12 @@ public class Ui {
                 ██║  ██╗██║██║  ██╗██║
                 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
                 """);
-        System.out.println("Hello! I'm Kiki");
-        System.out.println("How can I be of service today!");
+        output.println("Hello! I'm Kiki");
+        output.println("How can I be of service today!");
 
-        System.out.println(LINE);
-        System.out.println("    Currently in Listing Mode!");
-        System.out.println(LINE);
+        output.println(LINE);
+        output.println("    Currently in Listing Mode!");
+        output.println(LINE);
     }
 
     /**
@@ -67,9 +81,9 @@ public class Ui {
      * @param message Message to print.
      */
     public void printBox(String message) {
-        System.out.println(LINE);
-        System.out.println("   " + message);
-        System.out.println(LINE);
+        output.println(LINE);
+        output.println("   " + message);
+        output.println(LINE);
     }
 
     /**
@@ -79,11 +93,11 @@ public class Ui {
      * @param taskCount Total number of tasks after adding.
      */
     public void printAddedTask(Task task, int taskCount) {
-        System.out.println(LINE);
-        System.out.println("   Got it. I've added this task:");
-        System.out.println("    " + task);
-        System.out.println("   Now you have " + taskCount + " tasks in your list.");
-        System.out.println(LINE);
+        output.println(LINE);
+        output.println("   Got it. I've added this task:");
+        output.println("    " + task);
+        output.println("   Now you have " + taskCount + " tasks in your list.");
+        output.println(LINE);
     }
 
     /**
@@ -92,10 +106,10 @@ public class Ui {
      * @param task Task that was marked.
      */
     public void printMarked(Task task) {
-        System.out.println(LINE);
-        System.out.println("    Nice! I've marked this task as done:");
-        System.out.println("    " + task);
-        System.out.println(LINE);
+        output.println(LINE);
+        output.println("    Nice! I've marked this task as done:");
+        output.println("    " + task);
+        output.println(LINE);
     }
 
     /**
@@ -104,10 +118,10 @@ public class Ui {
      * @param task Task that was unmarked.
      */
     public void printUnmarked(Task task) {
-        System.out.println(LINE);
-        System.out.println("    Get to work,  I'll mark this task as not done yet:");
-        System.out.println("    " + task);
-        System.out.println(LINE);
+        output.println(LINE);
+        output.println("    Get to work,  I'll mark this task as not done yet:");
+        output.println("    " + task);
+        output.println(LINE);
     }
 
     /**
@@ -117,11 +131,11 @@ public class Ui {
      * @param taskCount Total number of tasks after removing.
      */
     public void printDeleted(Task removedTask, int taskCount) {
-        System.out.println(LINE);
-        System.out.println("   Noted. I've removed this task:");
-        System.out.println("     " + removedTask);
-        System.out.println("   Now you have " + taskCount + " tasks in the list.");
-        System.out.println(LINE);
+        output.println(LINE);
+        output.println("   Noted. I've removed this task:");
+        output.println("     " + removedTask);
+        output.println("   Now you have " + taskCount + " tasks in the list.");
+        output.println(LINE);
     }
 
     /**
@@ -130,14 +144,14 @@ public class Ui {
      * @param taskList Task list to print.
      */
     public void printList(TaskList taskList) {
-        System.out.println(LINE);
-        System.out.println("   Here are the tasks in your list:");
+        output.println(LINE);
+        output.println("   Here are the tasks in your list:");
 
         for (int i = 0; i < taskList.size(); i++) {
-            System.out.println("   " + (i + 1) + ". " + taskList.get(i));
+            output.println("   " + (i + 1) + ". " + taskList.get(i));
         }
 
-        System.out.println(LINE);
+        output.println(LINE);
     }
 
     /**
@@ -146,18 +160,18 @@ public class Ui {
      * @param matches Matching tasks, in list order.
      */
     public void printMatchingTasks(List<Task> matches) {
-        System.out.println(LINE);
-        System.out.println("   Here are the matching tasks in your list:");
+        output.println(LINE);
+        output.println("   Here are the matching tasks in your list:");
 
         if (matches.isEmpty()) {
-            System.out.println("   No matching tasks found.");
+            output.println("   No matching tasks found.");
         } else {
             for (int i = 0; i < matches.size(); i++) {
-                System.out.println("   " + (i + 1) + ". " + matches.get(i));
+                output.println("   " + (i + 1) + ". " + matches.get(i));
             }
         }
 
-        System.out.println(LINE);
+        output.println(LINE);
     }
 
     /**
@@ -170,24 +184,24 @@ public class Ui {
      */
     public void printTasksInRange(LocalDate rangeStart, LocalDate rangeEnd, boolean isWeek,
             List<Task> matches) {
-        System.out.println(LINE);
+        output.println(LINE);
 
         if (isWeek) {
-            System.out.println("   Here's what's happening from " + rangeStart.format(DISPLAY_DATE_FORMAT)
+            output.println("   Here's what's happening from " + rangeStart.format(DISPLAY_DATE_FORMAT)
                     + " to " + rangeEnd.format(DISPLAY_DATE_FORMAT) + ":");
         } else {
-            System.out.println("   Here's what's happening on " + rangeStart.format(DISPLAY_DATE_FORMAT) + ":");
+            output.println("   Here's what's happening on " + rangeStart.format(DISPLAY_DATE_FORMAT) + ":");
         }
 
         if (matches.isEmpty()) {
-            System.out.println("   Nothing scheduled.");
+            output.println("   Nothing scheduled.");
         } else {
             for (int i = 0; i < matches.size(); i++) {
-                System.out.println("   " + (i + 1) + ". " + matches.get(i));
+                output.println("   " + (i + 1) + ". " + matches.get(i));
             }
         }
 
-        System.out.println(LINE);
+        output.println(LINE);
     }
 
     /**

@@ -1,5 +1,8 @@
 package kiki;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,6 +30,7 @@ public class Kiki {
     private final Ui ui = new Ui();
     private final Storage storage = new Storage();
     private final TaskList taskList = new TaskList();
+    private boolean isLoaded;
 
     /**
      * Starts the chatbot.
@@ -39,112 +43,172 @@ public class Kiki {
 
     private void run() {
         ui.printWelcome();
-        storage.load(taskList, ui);
+        loadTasks(ui);
 
         while (true) {
             String trimmedInput = ui.readCommand();
 
-            try {
-                if (trimmedInput.equalsIgnoreCase("bye")) {
-                    ui.printGoodbye();
+            if (handleCommand(trimmedInput, ui)) {
                     break;
-                }
-
-                if (trimmedInput.isEmpty()) {
-                    throw new KikiException("Please enter a command.");
-                }
-
-                if (trimmedInput.equals("todo") || trimmedInput.startsWith("todo ")) {
-                    taskList.ensureCanAdd();
-                    String description = Parser.parseTodoDescription(trimmedInput);
-                    Task todo = new ToDos(description);
-                    taskList.add(todo);
-                    storage.save(taskList);
-                    ui.printAddedTask(todo, taskList.size());
-                    continue;
-                }
-
-                if (trimmedInput.equals("deadline") || trimmedInput.startsWith("deadline ")) {
-                    taskList.ensureCanAdd();
-                    Deadlines deadline = Parser.parseDeadline(trimmedInput);
-                    taskList.add(deadline);
-                    storage.save(taskList);
-                    ui.printAddedTask(deadline, taskList.size());
-                    continue;
-                }
-
-                if (trimmedInput.equals("event") || trimmedInput.startsWith("event ")) {
-                    taskList.ensureCanAdd();
-                    Events event = Parser.parseEvent(trimmedInput);
-                    taskList.add(event);
-                    storage.save(taskList);
-                    ui.printAddedTask(event, taskList.size());
-                    continue;
-                }
-
-                if (trimmedInput.equals("mark") || trimmedInput.startsWith("mark ")) {
-                    int taskIndex = Parser.parseTaskIndex(trimmedInput, "mark", taskList.size());
-                    Task task = taskList.get(taskIndex);
-                    task.markAsDone();
-                    storage.save(taskList);
-                    ui.printMarked(task);
-                    continue;
-                }
-
-                if (trimmedInput.equals("unmark") || trimmedInput.startsWith("unmark ")) {
-                    int taskIndex = Parser.parseTaskIndex(trimmedInput, "unmark", taskList.size());
-                    Task task = taskList.get(taskIndex);
-                    task.markAsNotDone();
-                    storage.save(taskList);
-                    ui.printUnmarked(task);
-                    continue;
-                }
-
-                if (trimmedInput.equals("delete") || trimmedInput.startsWith("delete ")) {
-                    int taskIndex = Parser.parseTaskIndex(trimmedInput, "delete", taskList.size());
-                    Task removedTask = taskList.remove(taskIndex);
-                    storage.save(taskList);
-                    ui.printDeleted(removedTask, taskList.size());
-                    continue;
-                }
-
-                if (trimmedInput.equalsIgnoreCase("list")) {
-                    ui.printList(taskList);
-                    continue;
-                }
-
-                if (trimmedInput.equals("find") || trimmedInput.startsWith("find ")) {
-                    String keyword = Parser.parseFindKeyword(trimmedInput);
-                    printMatchingTasks(keyword);
-                    continue;
-                }
-
-                if (trimmedInput.startsWith("check day ") || trimmedInput.startsWith("check week ")) {
-                    boolean isWeek = trimmedInput.startsWith("check week ");
-                    String dateText = trimmedInput
-                            .substring(isWeek ? "check week ".length() : "check day ".length())
-                            .trim();
-
-                    LocalDate anchorDate = Parser.parseCheckDate(dateText);
-                    LocalDate rangeStart = anchorDate;
-                    LocalDate rangeEnd = anchorDate;
-
-                    if (isWeek) {
-                        rangeStart = anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-                        rangeEnd = rangeStart.plusDays(6);
-                    }
-
-                    printTasksInRange(rangeStart, rangeEnd, isWeek);
-                    continue;
-                }
-
-                throw new KikiException("I'm sorry, but I don't know what that means :-(");
-            } catch (KikiException e) {
-                ui.printBox("OOPS!!! " + e.getMessage());
             }
         }
 
         ui.close();
+    }
+
+    /**
+     * Returns Kiki's response to a single command for use by the GUI.
+     *
+     * @param input Raw user input.
+     * @return The text Kiki would print for that command.
+     */
+    public String getResponse(String input) {
+        ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
+        Ui responseUi = new Ui(new ByteArrayInputStream(new byte[0]), new PrintStream(responseBuffer));
+
+        loadTasks(responseUi);
+        handleCommand(input.trim(), responseUi);
+
+        return responseBuffer.toString().strip();
+    }
+
+    private void loadTasks(Ui outputUi) {
+        if (isLoaded) {
+            return;
+        }
+
+        storage.load(taskList, outputUi);
+        isLoaded = true;
+    }
+
+    private boolean handleCommand(String trimmedInput, Ui outputUi) {
+        try {
+            if (trimmedInput.equalsIgnoreCase("bye")) {
+                outputUi.printGoodbye();
+                return true;
+            }
+
+            if (trimmedInput.isEmpty()) {
+                throw new KikiException("Please enter a command.");
+            }
+
+            if (trimmedInput.equals("todo") || trimmedInput.startsWith("todo ")) {
+                addTodo(trimmedInput, outputUi);
+                return false;
+            }
+
+            if (trimmedInput.equals("deadline") || trimmedInput.startsWith("deadline ")) {
+                addDeadline(trimmedInput, outputUi);
+                return false;
+            }
+
+            if (trimmedInput.equals("event") || trimmedInput.startsWith("event ")) {
+                addEvent(trimmedInput, outputUi);
+                return false;
+            }
+
+            if (trimmedInput.equals("mark") || trimmedInput.startsWith("mark ")) {
+                markTask(trimmedInput, outputUi);
+                return false;
+            }
+
+            if (trimmedInput.equals("unmark") || trimmedInput.startsWith("unmark ")) {
+                unmarkTask(trimmedInput, outputUi);
+                return false;
+            }
+
+            if (trimmedInput.equals("delete") || trimmedInput.startsWith("delete ")) {
+                deleteTask(trimmedInput, outputUi);
+                return false;
+            }
+
+            if (trimmedInput.equalsIgnoreCase("list")) {
+                outputUi.printList(taskList);
+                return false;
+            }
+
+            if (trimmedInput.equals("find") || trimmedInput.startsWith("find ")) {
+                String keyword = Parser.parseFindKeyword(trimmedInput);
+                printMatchingTasks(keyword, outputUi);
+                return false;
+            }
+
+            if (trimmedInput.startsWith("check day ") || trimmedInput.startsWith("check week ")) {
+                checkTasks(trimmedInput, outputUi);
+                return false;
+            }
+
+            throw new KikiException("I'm sorry, but I don't know what that means :-(");
+        } catch (KikiException e) {
+            outputUi.printBox("OOPS!!! " + e.getMessage());
+            return false;
+        }
+    }
+
+    private void addTodo(String trimmedInput, Ui outputUi) throws KikiException {
+        taskList.ensureCanAdd();
+        String description = Parser.parseTodoDescription(trimmedInput);
+        Task todo = new ToDos(description);
+        taskList.add(todo);
+        storage.save(taskList);
+        outputUi.printAddedTask(todo, taskList.size());
+    }
+
+    private void addDeadline(String trimmedInput, Ui outputUi) throws KikiException {
+        taskList.ensureCanAdd();
+        Deadlines deadline = Parser.parseDeadline(trimmedInput);
+        taskList.add(deadline);
+        storage.save(taskList);
+        outputUi.printAddedTask(deadline, taskList.size());
+    }
+
+    private void addEvent(String trimmedInput, Ui outputUi) throws KikiException {
+        taskList.ensureCanAdd();
+        Events event = Parser.parseEvent(trimmedInput);
+        taskList.add(event);
+        storage.save(taskList);
+        outputUi.printAddedTask(event, taskList.size());
+    }
+
+    private void markTask(String trimmedInput, Ui outputUi) throws KikiException {
+        int taskIndex = Parser.parseTaskIndex(trimmedInput, "mark", taskList.size());
+        Task task = taskList.get(taskIndex);
+        task.markAsDone();
+        storage.save(taskList);
+        outputUi.printMarked(task);
+    }
+
+    private void unmarkTask(String trimmedInput, Ui outputUi) throws KikiException {
+        int taskIndex = Parser.parseTaskIndex(trimmedInput, "unmark", taskList.size());
+        Task task = taskList.get(taskIndex);
+        task.markAsNotDone();
+        storage.save(taskList);
+        outputUi.printUnmarked(task);
+    }
+
+    private void deleteTask(String trimmedInput, Ui outputUi) throws KikiException {
+        int taskIndex = Parser.parseTaskIndex(trimmedInput, "delete", taskList.size());
+        Task removedTask = taskList.remove(taskIndex);
+        storage.save(taskList);
+        outputUi.printDeleted(removedTask, taskList.size());
+    }
+
+    private void checkTasks(String trimmedInput, Ui outputUi) throws KikiException {
+        boolean isWeek = trimmedInput.startsWith("check week ");
+        String dateText = trimmedInput
+                .substring(isWeek ? "check week ".length() : "check day ".length())
+                .trim();
+
+        LocalDate anchorDate = Parser.parseCheckDate(dateText);
+        LocalDate rangeStart = anchorDate;
+        LocalDate rangeEnd = anchorDate;
+
+        if (isWeek) {
+            rangeStart = anchorDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            rangeEnd = rangeStart.plusDays(6);
+        }
+
+        printTasksInRange(rangeStart, rangeEnd, isWeek, outputUi);
     }
 
     /**
@@ -194,7 +258,7 @@ public class Kiki {
      * upcoming ones first (soonest first) followed by past ones, and prints
      * them via {@link Ui}.
      */
-    private void printTasksInRange(LocalDate rangeStart, LocalDate rangeEnd, boolean isWeek) {
+    private void printTasksInRange(LocalDate rangeStart, LocalDate rangeEnd, boolean isWeek, Ui outputUi) {
         List<Task> matches = new ArrayList<>();
 
         for (int i = 0; i < taskList.size(); i++) {
@@ -208,14 +272,14 @@ public class Kiki {
                 .comparing((Task task) -> getSortKey(task).isBefore(now))
                 .thenComparing(Kiki::getSortKey));
 
-        ui.printTasksInRange(rangeStart, rangeEnd, isWeek, matches);
+        outputUi.printTasksInRange(rangeStart, rangeEnd, isWeek, matches);
     }
 
     /**
      * Finds the tasks whose description contains the given keyword, and
      * prints them via {@link Ui}.
      */
-    private void printMatchingTasks(String keyword) {
+    private void printMatchingTasks(String keyword, Ui outputUi) {
         List<Task> matches = new ArrayList<>();
 
         for (int i = 0; i < taskList.size(); i++) {
@@ -224,6 +288,6 @@ public class Kiki {
             }
         }
 
-        ui.printMatchingTasks(matches);
+        outputUi.printMatchingTasks(matches);
     }
 }
