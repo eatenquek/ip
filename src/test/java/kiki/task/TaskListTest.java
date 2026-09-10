@@ -29,9 +29,7 @@ public class TaskListTest {
         Task first = new ToDos("first");
         Task second = new ToDos("second");
         Task third = new ToDos("third");
-        taskList.add(first);
-        taskList.add(second);
-        taskList.add(third);
+        taskList.add(first, second, third);
 
         Task removed = taskList.remove(1);
 

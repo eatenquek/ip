@@ -32,13 +32,15 @@ public class TaskList {
     }
 
     /**
-     * Adds a task to the end of the list.
+     * Adds one or more tasks to the end of the list.
      *
-     * @param task Task to add.
+     * @param tasksToAdd Tasks to add.
      */
-    public void add(Task task) {
-        tasks[taskCount] = task;
-        taskCount++;
+    public void add(Task... tasksToAdd) {
+        for (Task task : tasksToAdd) {
+            tasks[taskCount] = task;
+            taskCount++;
+        }
     }
 
     /**
