@@ -140,42 +140,53 @@ public class Storage {
 
         boolean isDone = parseSavedDoneStatus(parts[1]);
         String description = parts[2].trim();
-        Task task;
 
         ensureNotEmpty(description, "saved task description is empty.");
 
-        if (taskType.equals("D")) {
-            String byText = parts[3].trim();
-            ensureNotEmpty(byText, "saved deadline time is empty.");
-
-            try {
-                LocalDateTime by = LocalDateTime.parse(byText);
-                task = new Deadlines(description, by);
-            } catch (DateTimeParseException e) {
-                throw new KikiException("invalid saved deadline date/time.");
-            }
-        } else if (taskType.equals("E")) {
-            String fromText = parts[3].trim();
-            String toText = parts[4].trim();
-            ensureNotEmpty(fromText, "saved event start time is empty.");
-            ensureNotEmpty(toText, "saved event end time is empty.");
-
-            try {
-                LocalDateTime from = LocalDateTime.parse(fromText);
-                LocalDateTime to = LocalDateTime.parse(toText);
-                task = new Events(description, from, to);
-            } catch (DateTimeParseException e) {
-                throw new KikiException("invalid saved event date/time.");
-            }
-        } else {
-            task = new ToDos(description);
-        }
+        Task task = createSavedTask(taskType, description, parts);
 
         if (isDone) {
             task.markAsDone();
         }
 
         return task;
+    }
+
+    private Task createSavedTask(String taskType, String description, String[] parts) throws KikiException {
+        if (taskType.equals("D")) {
+            return createSavedDeadline(description, parts[3]);
+        } else if (taskType.equals("E")) {
+            return createSavedEvent(description, parts[3], parts[4]);
+        } else {
+            return new ToDos(description);
+        }
+    }
+
+    private Deadlines createSavedDeadline(String description, String byText) throws KikiException {
+        String trimmedByText = byText.trim();
+        ensureNotEmpty(trimmedByText, "saved deadline time is empty.");
+
+        try {
+            LocalDateTime by = LocalDateTime.parse(trimmedByText);
+            return new Deadlines(description, by);
+        } catch (DateTimeParseException e) {
+            throw new KikiException("invalid saved deadline date/time.");
+        }
+    }
+
+    private Events createSavedEvent(String description, String fromText, String toText) throws KikiException {
+        String trimmedFromText = fromText.trim();
+        String trimmedToText = toText.trim();
+        ensureNotEmpty(trimmedFromText, "saved event start time is empty.");
+        ensureNotEmpty(trimmedToText, "saved event end time is empty.");
+
+        try {
+            LocalDateTime from = LocalDateTime.parse(trimmedFromText);
+            LocalDateTime to = LocalDateTime.parse(trimmedToText);
+            return new Events(description, from, to);
+        } catch (DateTimeParseException e) {
+            throw new KikiException("invalid saved event date/time.");
+        }
     }
 
     /**
