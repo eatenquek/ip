@@ -37,8 +37,16 @@ public class TaskList {
      * @param task Task to add.
      */
     public void add(Task task) {
+        assert task != null : "Task to add should not be null";
+        assert !isFull() : "Caller should check capacity before adding";
+
+        int previousTaskCount = taskCount;
+
         tasks[taskCount] = task;
         taskCount++;
+
+        assert taskCount == previousTaskCount + 1 : "Task count should increase by one";
+        assert tasks[previousTaskCount] == task : "Added task should be stored at the previous end";
     }
 
     /**
@@ -49,6 +57,8 @@ public class TaskList {
      * @return The removed task.
      */
     public Task remove(int index) {
+        assert index >= 0 && index < taskCount : "Index to remove should be within task list bounds";
+
         Task removed = tasks[index];
 
         for (int i = index; i < taskCount - 1; i++) {
@@ -58,10 +68,14 @@ public class TaskList {
         tasks[taskCount - 1] = null;
         taskCount--;
 
+        assert tasks[taskCount] == null : "Removed task slot should be cleared";
+
         return removed;
     }
 
     public Task get(int index) {
+        assert index >= 0 && index < taskCount : "Index to get should be within task list bounds";
+
         return tasks[index];
     }
 
