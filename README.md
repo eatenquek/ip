@@ -2,7 +2,7 @@
 
 Kiki is a command-line task chatbot for keeping track of simple tasks. It can add todos,
 deadlines, and events, show your task list, mark tasks as done or not done, delete tasks,
-and exit with a goodbye message.
+sort dated tasks, and exit with a goodbye message.
 
 This project is based on the CS2103 iP Java starter template.
 
@@ -63,12 +63,14 @@ Kiki reads one command per line.
 | Find tasks by keyword | `find KEYWORD` | `find book` |
 | Check a day's tasks | `check day DATE` | `check day 21 August` |
 | Check a week's tasks | `check week DATE` | `check week 21 August` |
+| Sort tasks by date/time | `sort` | `sort` |
 | Mark a task as done | `mark NUMBER` | `mark 1` |
 | Mark a task as not done | `unmark NUMBER` | `unmark 1` |
 | Delete a task | `delete NUMBER` | `delete 2` |
 | Exit Kiki | `bye` | `bye` |
 
 Task numbers come from the `list` command. For example, `mark 2` marks the second task in the current list.
+The `sort` command places deadlines and events with earlier date/times first, followed by todos.
 
 ## Task Display
 

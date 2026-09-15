@@ -139,6 +139,22 @@ public class Ui {
     }
 
     /**
+     * Prints confirmation that the task list was sorted.
+     *
+     * @param taskList Sorted task list to print.
+     */
+    public void printSorted(TaskList taskList) {
+        output.println(LINE);
+        output.println("   Sorted your tasks by date/time:");
+
+        for (int i = 0; i < taskList.size(); i++) {
+            output.println("   " + (i + 1) + ". " + taskList.get(i));
+        }
+
+        output.println(LINE);
+    }
+
+    /**
      * Prints every task in the given list, numbered from 1.
      *
      * @param taskList Task list to print.
