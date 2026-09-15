@@ -10,6 +10,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import kiki.exception.KikiException;
 import kiki.parser.Parser;
@@ -259,13 +261,10 @@ public class Kiki {
      * them via {@link Ui}.
      */
     private void printTasksInRange(LocalDate rangeStart, LocalDate rangeEnd, boolean isWeek, Ui outputUi) {
-        List<Task> matches = new ArrayList<>();
-
-        for (int i = 0; i < taskList.size(); i++) {
-            if (taskOverlapsRange(taskList.get(i), rangeStart, rangeEnd)) {
-                matches.add(taskList.get(i));
-            }
-        }
+        List<Task> matches = IntStream.range(0, taskList.size())
+                .mapToObj(taskList::get)
+                .filter(task -> taskOverlapsRange(task, rangeStart, rangeEnd))
+                .collect(Collectors.toCollection(ArrayList::new));
 
         LocalDateTime now = LocalDateTime.now();
         matches.sort(Comparator
@@ -280,13 +279,10 @@ public class Kiki {
      * prints them via {@link Ui}.
      */
     private void printMatchingTasks(String keyword, Ui outputUi) {
-        List<Task> matches = new ArrayList<>();
-
-        for (int i = 0; i < taskList.size(); i++) {
-            if (descriptionContainsKeyword(taskList.get(i), keyword)) {
-                matches.add(taskList.get(i));
-            }
-        }
+        List<Task> matches = IntStream.range(0, taskList.size())
+                .mapToObj(taskList::get)
+                .filter(task -> descriptionContainsKeyword(task, keyword))
+                .toList();
 
         outputUi.printMatchingTasks(matches);
     }
