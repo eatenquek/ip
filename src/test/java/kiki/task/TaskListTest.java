@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Comparator;
+
 import org.junit.jupiter.api.Test;
 
 import kiki.exception.KikiException;
@@ -51,6 +53,23 @@ public class TaskListTest {
 
         assertSame(only, removed);
         assertEquals(0, taskList.size());
+    }
+
+    @Test
+    public void sort_threeTasks_reordersTasks() {
+        TaskList taskList = new TaskList();
+        Task first = new ToDos("first");
+        Task second = new ToDos("second");
+        Task third = new ToDos("third");
+        taskList.add(first);
+        taskList.add(second);
+        taskList.add(third);
+
+        taskList.sort(Comparator.comparing(Task::getDescription).reversed());
+
+        assertSame(third, taskList.get(0));
+        assertSame(second, taskList.get(1));
+        assertSame(first, taskList.get(2));
     }
 
     @Test

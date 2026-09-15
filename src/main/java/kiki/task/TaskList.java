@@ -1,5 +1,8 @@
 package kiki.task;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 import kiki.exception.KikiException;
 
 /**
@@ -77,6 +80,15 @@ public class TaskList {
         assert index >= 0 && index < taskCount : "Index to get should be within task list bounds";
 
         return tasks[index];
+    }
+
+    /**
+     * Sorts the stored tasks using the supplied ordering.
+     *
+     * @param comparator Ordering to use for the current tasks.
+     */
+    public void sort(Comparator<Task> comparator) {
+        Arrays.sort(tasks, 0, taskCount, comparator);
     }
 
     public int size() {

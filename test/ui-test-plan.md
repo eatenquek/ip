@@ -218,6 +218,55 @@ How can I be of service today!
    -----------------------------
    OOPS!!! I'm sorry, but I don't know what that means :-(
    -----------------------------
+
+### Test Case: Sort tasks
+
+Aim:
+Verify that sort lists dated tasks by date/time and places todos after dated tasks.
+
+Inputs:
+todo read book
+deadline submit report /by 2035-08-21 1700
+event morning class /from 2035-08-20 0900 /to 2035-08-20 1000
+sort
+bye
+
+Expected Output:
+██╗  ██╗██╗██╗  ██╗██╗
+██║ ██╔╝██║██║ ██╔╝██║
+█████╔╝ ██║█████╔╝ ██║
+██╔═██╗ ██║██╔═██╗ ██║
+██║  ██╗██║██║  ██╗██║
+╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
+Hello! I'm Kiki
+How can I be of service today!
+   -----------------------------
+    Currently in Listing Mode!
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [T][ ] read book
+   Now you have 1 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
+   Now you have 2 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Got it. I've added this task:
+    [E][ ] morning class (from: Aug 20 2035, 9:00 am to: Aug 20 2035, 10:00 am)
+   Now you have 3 tasks in your list.
+   -----------------------------
+   -----------------------------
+   Sorted your tasks by date/time:
+   1. [E][ ] morning class (from: Aug 20 2035, 9:00 am to: Aug 20 2035, 10:00 am)
+   2. [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
+   3. [T][ ] read book
+   -----------------------------
+   -----------------------------
+   Goodbye! Hope to see you again soon =)
+   -----------------------------
    -----------------------------
    Goodbye! Hope to see you again soon =)
    -----------------------------

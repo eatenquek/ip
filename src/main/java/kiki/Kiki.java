@@ -129,6 +129,11 @@ public class Kiki {
                 return false;
             }
 
+            if (trimmedInput.equalsIgnoreCase("sort")) {
+                sortTasks(outputUi);
+                return false;
+            }
+
             if (trimmedInput.equals("find") || trimmedInput.startsWith("find ")) {
                 String keyword = Parser.parseFindKeyword(trimmedInput);
                 printMatchingTasks(keyword, outputUi);
@@ -211,6 +216,12 @@ public class Kiki {
         }
 
         printTasksInRange(rangeStart, rangeEnd, isWeek, outputUi);
+    }
+
+    private void sortTasks(Ui outputUi) throws KikiException {
+        taskList.sort(Comparator.comparing(Kiki::getSortKey));
+        storage.save(taskList);
+        outputUi.printSorted(taskList);
     }
 
     /**
