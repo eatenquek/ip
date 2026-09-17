@@ -8,6 +8,8 @@ import javafx.scene.layout.HBox;
  * A chat bubble containing one message and a simple speaker badge.
  */
 public class DialogBox extends HBox {
+    private static final String ERROR_PREFIX = "OOPS!!!";
+
     private final Label text;
     private final Label avatar;
 
@@ -17,8 +19,9 @@ public class DialogBox extends HBox {
 
         text.setWrapText(true);
         text.getStyleClass().add("message-bubble");
-        avatar.getStyleClass().addAll("avatar", styleClass);
-        setSpacing(10);
+        text.maxWidthProperty().bind(widthProperty().subtract(42).multiply(0.82));
+        avatar.getStyleClass().addAll("speaker-label", styleClass);
+        setSpacing(8);
         getChildren().addAll(avatar, text);
     }
 
@@ -30,9 +33,9 @@ public class DialogBox extends HBox {
      */
     public static DialogBox getUserDialog(String message) {
         DialogBox dialogBox = new DialogBox(message, "You", "user-avatar");
+        dialogBox.text.getStyleClass().add("user-message-bubble");
         dialogBox.setAlignment(Pos.TOP_RIGHT);
         dialogBox.getChildren().setAll(dialogBox.text, dialogBox.avatar);
-        HBox.setHgrow(dialogBox.text, javafx.scene.layout.Priority.ALWAYS);
 
         return dialogBox;
     }
@@ -46,8 +49,15 @@ public class DialogBox extends HBox {
     public static DialogBox getKikiDialog(String message) {
         DialogBox dialogBox = new DialogBox(message, "Kiki", "kiki-avatar");
         dialogBox.setAlignment(Pos.TOP_LEFT);
-        HBox.setHgrow(dialogBox.text, javafx.scene.layout.Priority.ALWAYS);
+
+        if (isErrorResponse(message)) {
+            dialogBox.text.getStyleClass().add("error-message");
+        }
 
         return dialogBox;
+    }
+
+    static boolean isErrorResponse(String response) {
+        return response.startsWith(ERROR_PREFIX);
     }
 }
