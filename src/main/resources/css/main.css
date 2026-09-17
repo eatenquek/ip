@@ -1,5 +1,5 @@
 .root {
-    -fx-background-color: #f6f7fb;
+    -fx-background-color: #f5f7f4;
     -fx-font-family: "Avenir Next", "Segoe UI", sans-serif;
 }
 
@@ -14,44 +14,56 @@
 }
 
 .message-bubble {
-    -fx-background-color: white;
-    -fx-background-radius: 8;
-    -fx-border-color: #d9dde8;
-    -fx-border-radius: 8;
-    -fx-padding: 10 12;
-    -fx-text-fill: #1f2937;
-    -fx-max-width: 360;
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 6;
+    -fx-border-color: #dce3dc;
+    -fx-border-radius: 6;
+    -fx-padding: 9 12;
+    -fx-text-fill: #26352d;
+    -fx-max-width: 520;
 }
 
-.avatar {
+.speaker-label {
     -fx-alignment: center;
-    -fx-background-radius: 999;
-    -fx-min-height: 42;
-    -fx-min-width: 42;
-    -fx-pref-height: 42;
-    -fx-pref-width: 42;
-    -fx-text-fill: white;
+    -fx-background-radius: 4;
+    -fx-min-height: 26;
+    -fx-min-width: 38;
+    -fx-pref-height: 26;
+    -fx-pref-width: 38;
+    -fx-text-fill: #ffffff;
     -fx-font-weight: bold;
+    -fx-font-size: 10;
 }
 
 .kiki-avatar {
-    -fx-background-color: #2f855a;
+    -fx-background-color: #397956;
 }
 
 .user-avatar {
-    -fx-background-color: #2b6cb0;
+    -fx-background-color: #586e8b;
+}
+
+.user-message-bubble {
+    -fx-background-color: #e8eef5;
+    -fx-border-color: #d2dce8;
+}
+
+.error-message {
+    -fx-background-color: #fff0ec;
+    -fx-border-color: #d97757;
+    -fx-text-fill: #762d1d;
 }
 
 .text-field {
-    -fx-background-radius: 8;
-    -fx-border-color: #cbd5e1;
-    -fx-border-radius: 8;
+    -fx-background-radius: 6;
+    -fx-border-color: #cbd5cf;
+    -fx-border-radius: 6;
     -fx-padding: 9 10;
 }
 
 .button {
-    -fx-background-color: #1f2937;
-    -fx-background-radius: 8;
+    -fx-background-color: #293b31;
+    -fx-background-radius: 6;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-padding: 9 16;
