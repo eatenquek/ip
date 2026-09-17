@@ -51,11 +51,9 @@ public class Ui {
                 ██║  ██╗██║██║  ██╗██║
                 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
                 """);
-        output.println("Hello! I'm Kiki");
-        output.println("How can I be of service today!");
+        output.println("Hello! I'm Kiki.");
+        output.println("I'll help you keep track of your tasks.");
 
-        output.println(LINE);
-        output.println("    Currently in Listing Mode!");
         output.println(LINE);
     }
 
@@ -72,7 +70,7 @@ public class Ui {
      * Prints the farewell message shown when the user exits.
      */
     public void printGoodbye() {
-        printBox("Goodbye! Hope to see you again soon =)");
+        printBox("All set for now. See you next time.");
     }
 
     /**
@@ -94,9 +92,9 @@ public class Ui {
      */
     public void printAddedTask(Task task, int taskCount) {
         output.println(LINE);
-        output.println("   Got it. I've added this task:");
+        output.println("   Added to your list:");
         output.println("    " + task);
-        output.println("   Now you have " + taskCount + " tasks in your list.");
+        output.println("   You now have " + taskCount + " tasks in your list.");
         output.println(LINE);
     }
 
@@ -107,7 +105,7 @@ public class Ui {
      */
     public void printMarked(Task task) {
         output.println(LINE);
-        output.println("    Nice! I've marked this task as done:");
+        output.println("    Marked as complete:");
         output.println("    " + task);
         output.println(LINE);
     }
@@ -119,7 +117,7 @@ public class Ui {
      */
     public void printUnmarked(Task task) {
         output.println(LINE);
-        output.println("    Get to work,  I'll mark this task as not done yet:");
+        output.println("    Reopened this task:");
         output.println("    " + task);
         output.println(LINE);
     }
@@ -132,7 +130,7 @@ public class Ui {
      */
     public void printDeleted(Task removedTask, int taskCount) {
         output.println(LINE);
-        output.println("   Noted. I've removed this task:");
+        output.println("   Removed from your list:");
         output.println("     " + removedTask);
         output.println("   Now you have " + taskCount + " tasks in the list.");
         output.println(LINE);
@@ -145,7 +143,7 @@ public class Ui {
      */
     public void printSorted(TaskList taskList) {
         output.println(LINE);
-        output.println("   Sorted your tasks by date/time:");
+        output.println("   Here is your list, sorted by date and time:");
 
         for (int i = 0; i < taskList.size(); i++) {
             output.println("   " + (i + 1) + ". " + taskList.get(i));
@@ -161,7 +159,7 @@ public class Ui {
      */
     public void printList(TaskList taskList) {
         output.println(LINE);
-        output.println("   Here are the tasks in your list:");
+        output.println("   Here is your task list:");
 
         for (int i = 0; i < taskList.size(); i++) {
             output.println("   " + (i + 1) + ". " + taskList.get(i));
@@ -177,7 +175,7 @@ public class Ui {
      */
     public void printMatchingTasks(List<Task> matches) {
         output.println(LINE);
-        output.println("   Here are the matching tasks in your list:");
+        output.println("   Here are the tasks that match:");
 
         if (matches.isEmpty()) {
             output.println("   No matching tasks found.");
