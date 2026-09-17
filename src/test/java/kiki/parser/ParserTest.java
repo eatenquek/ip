@@ -78,6 +78,21 @@ public class ParserTest {
     }
 
     @Test
+    public void parseDeadline_nonexistentDate_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class,
+                () -> Parser.parseDeadline("deadline return book /by 2035-02-30 1800"));
+        assertEquals("Please use: deadline DESCRIPTION /by yyyy-MM-dd HHmm", exception.getMessage());
+    }
+
+    @Test
+    public void parseDeadline_duplicateByMarker_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class,
+                () -> Parser.parseDeadline(
+                        "deadline return book /by 2035-02-28 1800 /by 2035-03-01 1800"));
+        assertEquals("Please use only one /by marker in a deadline command.", exception.getMessage());
+    }
+
+    @Test
     public void parseEvent_validInput_returnsEventWithParsedDateTimes() throws KikiException {
         Events event = Parser.parseEvent(
                 "event project meeting /from 2019-12-02 1400 /to 2019-12-02 1600");
@@ -110,6 +125,30 @@ public class ParserTest {
     }
 
     @Test
+    public void parseEvent_startNotBeforeEnd_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class,
+                () -> Parser.parseEvent(
+                        "event meeting /from 2035-03-01 1000 /to 2035-03-01 1000"));
+        assertEquals("The event start time must be earlier than its end time.", exception.getMessage());
+    }
+
+    @Test
+    public void parseEvent_duplicateToMarker_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class,
+                () -> Parser.parseEvent(
+                        "event meeting /from 2035-03-01 1000 /to 2035-03-01 1200 /to 2035-03-01 1400"));
+        assertEquals("Please use only one /to marker in an event command.", exception.getMessage());
+    }
+
+    @Test
+    public void parseEvent_nonexistentDate_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class,
+                () -> Parser.parseEvent("event meeting /from 2035-02-30 1000 /to 2035-03-01 1200"));
+        assertEquals("Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm",
+                exception.getMessage());
+    }
+
+    @Test
     public void parseCheckDate_explicitYear_returnsParsedDate() throws KikiException {
         LocalDate date = Parser.parseCheckDate("21 August 2035");
         assertEquals(LocalDate.of(2035, Month.AUGUST, 21), date);
@@ -132,6 +171,13 @@ public class ParserTest {
     public void parseCheckDate_unparsableText_exceptionThrown() {
         KikiException exception = assertThrows(KikiException.class,
                 () -> Parser.parseCheckDate("banana"));
+        assertEquals("Please use a date like: 21 August", exception.getMessage());
+    }
+
+    @Test
+    public void parseCheckDate_nonexistentDate_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class,
+                () -> Parser.parseCheckDate("29 February 2035"));
         assertEquals("Please use a date like: 21 August", exception.getMessage());
     }
 

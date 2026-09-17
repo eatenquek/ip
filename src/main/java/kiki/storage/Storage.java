@@ -43,6 +43,8 @@ public class Storage {
             }
         } catch (IOException e) {
             throw new KikiException("Unable to prepare the save folder.");
+        } catch (SecurityException e) {
+            throw new KikiException("Unable to access the save folder.");
         }
 
         try (BufferedWriter writer = Files.newBufferedWriter(SAVE_FILE_PATH)) {
@@ -52,6 +54,8 @@ public class Storage {
             }
         } catch (IOException e) {
             throw new KikiException("Unable to save tasks to disk.");
+        } catch (SecurityException e) {
+            throw new KikiException("Unable to access the save file.");
         }
     }
 
@@ -60,12 +64,17 @@ public class Storage {
      * via {@code ui} for any corrupted or excess saved lines.
      */
     public void load(TaskList tasks, Ui ui) {
-        if (!Files.exists(SAVE_FILE_PATH)) {
-            return;
-        }
+        try {
+            if (!Files.exists(SAVE_FILE_PATH)) {
+                return;
+            }
 
-        if (Files.isDirectory(SAVE_FILE_PATH)) {
-            ui.printBox("OOPS!!! Unable to load tasks because the save path is a folder.");
+            if (Files.isDirectory(SAVE_FILE_PATH)) {
+                ui.printBox("OOPS!!! Unable to load tasks because the save path is a folder.");
+                return;
+            }
+        } catch (SecurityException e) {
+            ui.printBox("OOPS!!! Unable to access the save path.");
             return;
         }
 
@@ -96,6 +105,8 @@ public class Storage {
             }
         } catch (IOException e) {
             ui.printBox("OOPS!!! Unable to load tasks from disk.");
+        } catch (SecurityException e) {
+            ui.printBox("OOPS!!! Unable to access saved tasks.");
         }
     }
 
@@ -183,6 +194,11 @@ public class Storage {
         try {
             LocalDateTime from = LocalDateTime.parse(trimmedFromText);
             LocalDateTime to = LocalDateTime.parse(trimmedToText);
+
+            if (!from.isBefore(to)) {
+                throw new KikiException("invalid saved event date/time: start must be before end.");
+            }
+
             return new Events(description, from, to);
         } catch (DateTimeParseException e) {
             throw new KikiException("invalid saved event date/time.");
