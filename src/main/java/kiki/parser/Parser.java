@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Locale;
 
 import kiki.exception.KikiException;
@@ -16,9 +17,9 @@ import kiki.task.Events;
  */
 public class Parser {
     private static final DateTimeFormatter DATE_TIME_FORMAT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+            DateTimeFormatter.ofPattern("uuuu-MM-dd HHmm").withResolverStyle(ResolverStyle.STRICT);
     private static final DateTimeFormatter CHECK_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.ENGLISH);
+            DateTimeFormatter.ofPattern("d MMMM uuuu", Locale.ENGLISH).withResolverStyle(ResolverStyle.STRICT);
 
     /**
      * Parses the description out of a "todo ..." command.
@@ -49,6 +50,9 @@ public class Parser {
         if (byIndex < 0) {
             throw new KikiException("Please use: deadline DESCRIPTION /by TIME");
         }
+        if (hasRepeatedMarker(deadlineInput, "/by")) {
+            throw new KikiException("Please use only one /by marker in a deadline command.");
+        }
 
         String description = deadlineInput.substring(0, byIndex).trim();
         String by = deadlineInput.substring(byIndex + "/by".length()).trim();
@@ -78,6 +82,9 @@ public class Parser {
         if (fromIndex < 0) {
             throw new KikiException("Please use: event DESCRIPTION /from START /to END");
         }
+        if (hasRepeatedMarker(eventInput, "/from")) {
+            throw new KikiException("Please use only one /from marker in an event command.");
+        }
 
         String description = eventInput.substring(0, fromIndex).trim();
         String fromAndTo = eventInput.substring(fromIndex + "/from".length()).trim();
@@ -85,6 +92,9 @@ public class Parser {
 
         if (toIndex < 0) {
             throw new KikiException("Please use: event DESCRIPTION /from START /to END");
+        }
+        if (hasRepeatedMarker(eventInput, "/to")) {
+            throw new KikiException("Please use only one /to marker in an event command.");
         }
 
         String from = fromAndTo.substring(0, toIndex).trim();
@@ -96,7 +106,12 @@ public class Parser {
         try {
             LocalDateTime fromInput = LocalDateTime.parse(from, DATE_TIME_FORMAT);
             LocalDateTime toInput = LocalDateTime.parse(to, DATE_TIME_FORMAT);
+            if (!fromInput.isBefore(toInput)) {
+                throw new KikiException("The event start time must be earlier than its end time.");
+            }
             return new Events(description, fromInput, toInput);
+        } catch (KikiException e) {
+            throw e;
         } catch (DateTimeParseException e) {
             throw new KikiException(
                     "Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm");
@@ -169,5 +184,10 @@ public class Parser {
         if (value.isEmpty()) {
             throw new KikiException(errorMessage);
         }
+    }
+
+    private static boolean hasRepeatedMarker(String input, String marker) {
+        int firstIndex = input.indexOf(marker);
+        return firstIndex >= 0 && input.indexOf(marker, firstIndex + marker.length()) >= 0;
     }
 }
