@@ -31,7 +31,7 @@ public class MainWindow {
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
-        dialogContainer.getChildren().add(DialogBox.getKikiDialog("Hello! I'm Kiki\nHow can I be of service today!"));
+        appendDialog(DialogBox.getKikiDialog("Hello! I'm Kiki.\nI'll help you keep track of your tasks."));
     }
 
     /**
@@ -46,14 +46,17 @@ public class MainWindow {
         }
 
         String response = kiki.getResponse(input);
-        dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(input),
-                DialogBox.getKikiDialog(response)
-        );
+        appendDialog(DialogBox.getUserDialog(input));
+        appendDialog(DialogBox.getKikiDialog(response));
         userInput.clear();
 
         if (input.equalsIgnoreCase(EXIT_COMMAND)) {
             Platform.exit();
         }
+    }
+
+    private void appendDialog(DialogBox dialog) {
+        dialog.bindMessageWidth(dialogContainer.widthProperty());
+        dialogContainer.getChildren().add(dialog);
     }
 }

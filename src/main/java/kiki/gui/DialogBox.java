@@ -1,14 +1,21 @@
 package kiki.gui;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 
 /**
  * A chat bubble containing one message and a simple speaker badge.
  */
 public class DialogBox extends HBox {
     private static final String ERROR_PREFIX = "OOPS!!!";
+    private static final double MIN_MESSAGE_WIDTH = 120;
+    private static final double MAX_MESSAGE_WIDTH = 520;
+    private static final double NON_MESSAGE_WIDTH = 50;
+    private static final double MESSAGE_WIDTH_RATIO = 0.82;
 
     private final Label text;
     private final Label avatar;
@@ -19,7 +26,6 @@ public class DialogBox extends HBox {
 
         text.setWrapText(true);
         text.getStyleClass().add("message-bubble");
-        text.maxWidthProperty().bind(widthProperty().subtract(42).multiply(0.82));
         avatar.getStyleClass().addAll("speaker-label", styleClass);
         setSpacing(8);
         getChildren().addAll(avatar, text);
@@ -36,6 +42,7 @@ public class DialogBox extends HBox {
         dialogBox.text.getStyleClass().add("user-message-bubble");
         dialogBox.setAlignment(Pos.TOP_RIGHT);
         dialogBox.getChildren().setAll(dialogBox.text, dialogBox.avatar);
+        HBox.setHgrow(dialogBox.text, Priority.ALWAYS);
 
         return dialogBox;
     }
@@ -49,6 +56,7 @@ public class DialogBox extends HBox {
     public static DialogBox getKikiDialog(String message) {
         DialogBox dialogBox = new DialogBox(message, "Kiki", "kiki-avatar");
         dialogBox.setAlignment(Pos.TOP_LEFT);
+        HBox.setHgrow(dialogBox.text, Priority.ALWAYS);
 
         if (isErrorResponse(message)) {
             dialogBox.text.getStyleClass().add("error-message");
@@ -59,5 +67,15 @@ public class DialogBox extends HBox {
 
     static boolean isErrorResponse(String response) {
         return response.startsWith(ERROR_PREFIX);
+    }
+
+    void bindMessageWidth(ReadOnlyDoubleProperty containerWidth) {
+        text.maxWidthProperty().bind(Bindings.createDoubleBinding(
+                () -> getMessageMaxWidth(containerWidth.get()), containerWidth));
+    }
+
+    static double getMessageMaxWidth(double containerWidth) {
+        double availableWidth = (containerWidth - NON_MESSAGE_WIDTH) * MESSAGE_WIDTH_RATIO;
+        return Math.max(MIN_MESSAGE_WIDTH, Math.min(MAX_MESSAGE_WIDTH, availableWidth));
     }
 }

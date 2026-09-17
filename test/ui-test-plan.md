@@ -17,13 +17,11 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
-   -----------------------------
-    Currently in Listing Mode!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Add and list task types
@@ -47,34 +45,34 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] read book
-   Now you have 1 tasks in your list.
+   You now have 1 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [D][ ] return book (by: Dec 01 2019, 6:00 pm)
-   Now you have 2 tasks in your list.
+   You now have 2 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [E][ ] project meeting (from: Dec 02 2019, 2:00 pm to: Dec 02 2019, 4:00 pm)
-   Now you have 3 tasks in your list.
+   You now have 3 tasks in your list.
    -----------------------------
    -----------------------------
-   Here are the tasks in your list:
+   Here is your task list:
    1. [T][ ] read book
    2. [D][ ] return book (by: Dec 01 2019, 6:00 pm)
    3. [E][ ] project meeting (from: Dec 02 2019, 2:00 pm to: Dec 02 2019, 4:00 pm)
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Invalid mark number
@@ -94,21 +92,21 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] read book
-   Now you have 1 tasks in your list.
+   You now have 1 tasks in your list.
    -----------------------------
    -----------------------------
    OOPS!!! That task number is not in your list.
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Load saved tasks
@@ -133,19 +131,19 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Here are the tasks in your list:
+   Here is your task list:
    1. [T][X] read book
    2. [D][ ] return book (by: Dec 01 2019, 6:00 pm)
    3. [E][ ] project meeting (from: Dec 02 2019, 2:00 pm to: Dec 02 2019, 4:00 pm)
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Skip corrupted saved tasks
@@ -170,8 +168,8 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
@@ -182,12 +180,12 @@ How can I be of service today!
    OOPS!!! Skipped a corrupted saved task: saved task status must be 0 or 1.
    -----------------------------
    -----------------------------
-   Here are the tasks in your list:
+   Here is your task list:
    1. [T][X] read book
    2. [E][ ] project meeting (from: Dec 02 2019, 2:00 pm to: Dec 02 2019, 4:00 pm)
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Empty todo and unknown command
@@ -207,8 +205,8 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
@@ -238,37 +236,37 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] read book
-   Now you have 1 tasks in your list.
+   You now have 1 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
-   Now you have 2 tasks in your list.
+   You now have 2 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [E][ ] morning class (from: Aug 20 2035, 9:00 am to: Aug 20 2035, 10:00 am)
-   Now you have 3 tasks in your list.
+   You now have 3 tasks in your list.
    -----------------------------
    -----------------------------
-   Sorted your tasks by date/time:
+   Here is your list, sorted by date and time:
    1. [E][ ] morning class (from: Aug 20 2035, 9:00 am to: Aug 20 2035, 10:00 am)
    2. [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
    3. [T][ ] read book
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Invalid mark and unmark inputs
@@ -290,15 +288,15 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] read book
-   Now you have 1 tasks in your list.
+   You now have 1 tasks in your list.
    -----------------------------
    -----------------------------
    OOPS!!! Task number must be a whole number.
@@ -310,7 +308,7 @@ How can I be of service today!
    OOPS!!! Please tell me which task number to unmark.
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Invalid deadline and event inputs
@@ -338,8 +336,8 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
@@ -368,7 +366,7 @@ How can I be of service today!
    OOPS!!! Please use: event DESCRIPTION /from yyyy-MM-dd HHmm /to yyyy-MM-dd HHmm
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Delete task from middle of list
@@ -397,50 +395,50 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] read book
-   Now you have 1 tasks in your list.
+   You now have 1 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [D][ ] return book (by: Jun 06 2024, 12:00 pm)
-   Now you have 2 tasks in your list.
+   You now have 2 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [E][ ] project meeting (from: Aug 06 2024, 2:00 pm to: Aug 06 2024, 4:00 pm)
-   Now you have 3 tasks in your list.
+   You now have 3 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] join sports club
-   Now you have 4 tasks in your list.
+   You now have 4 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] borrow book
-   Now you have 5 tasks in your list.
+   You now have 5 tasks in your list.
    -----------------------------
    -----------------------------
-    Nice! I've marked this task as done:
+    Marked as complete:
     [T][X] read book
    -----------------------------
    -----------------------------
-    Nice! I've marked this task as done:
+    Marked as complete:
     [D][X] return book (by: Jun 06 2024, 12:00 pm)
    -----------------------------
    -----------------------------
-    Nice! I've marked this task as done:
+    Marked as complete:
     [T][X] join sports club
    -----------------------------
    -----------------------------
-   Here are the tasks in your list:
+   Here is your task list:
    1. [T][X] read book
    2. [D][X] return book (by: Jun 06 2024, 12:00 pm)
    3. [E][ ] project meeting (from: Aug 06 2024, 2:00 pm to: Aug 06 2024, 4:00 pm)
@@ -448,19 +446,19 @@ How can I be of service today!
    5. [T][ ] borrow book
    -----------------------------
    -----------------------------
-   Noted. I've removed this task:
+   Removed from your list:
      [E][ ] project meeting (from: Aug 06 2024, 2:00 pm to: Aug 06 2024, 4:00 pm)
-   Now you have 4 tasks in the list.
+   You now have 4 tasks in the list.
    -----------------------------
    -----------------------------
-   Here are the tasks in your list:
+   Here is your task list:
    1. [T][X] read book
    2. [D][X] return book (by: Jun 06 2024, 12:00 pm)
    3. [T][X] join sports club
    4. [T][ ] borrow book
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Save-triggering task changes
@@ -483,31 +481,31 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] save me
-   Now you have 1 tasks in your list.
+   You now have 1 tasks in your list.
    -----------------------------
    -----------------------------
-    Nice! I've marked this task as done:
+    Marked as complete:
     [T][X] save me
    -----------------------------
    -----------------------------
-    Get to work,  I'll mark this task as not done yet:
+    Reopened this task:
     [T][ ] save me
    -----------------------------
    -----------------------------
-   Noted. I've removed this task:
+   Removed from your list:
      [T][ ] save me
-   Now you have 0 tasks in the list.
+   You now have 0 tasks in the list.
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Check day and check week filter and sort tasks
@@ -533,25 +531,25 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
-   Now you have 1 tasks in your list.
+   You now have 1 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [E][ ] workshop (from: Aug 19 2035, 9:00 am to: Aug 23 2035, 6:00 pm)
-   Now you have 2 tasks in your list.
+   You now have 2 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [D][ ] unrelated task (by: Sept 01 2035, 9:00 am)
-   Now you have 3 tasks in your list.
+   You now have 3 tasks in your list.
    -----------------------------
    -----------------------------
    Here's what's happening on Aug 21 2035:
@@ -564,7 +562,7 @@ How can I be of service today!
    2. [D][ ] submit report (by: Aug 21 2035, 5:00 pm)
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Check day/week with no matches and invalid dates
@@ -587,8 +585,8 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
@@ -603,7 +601,7 @@ How can I be of service today!
    Nothing scheduled.
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------
 
 ### Test Case: Find matches keyword case-insensitively
@@ -628,38 +626,38 @@ Expected Output:
 ██╔═██╗ ██║██╔═██╗ ██║
 ██║  ██╗██║██║  ██╗██║
 ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═╝
-Hello! I'm Kiki
-How can I be of service today!
+Hello! I'm Kiki.
+I'll help you keep track of your tasks.
    -----------------------------
     Currently in Listing Mode!
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] read book
-   Now you have 1 tasks in your list.
+   You now have 1 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [D][ ] return book (by: Dec 01 2019, 6:00 pm)
-   Now you have 2 tasks in your list.
+   You now have 2 tasks in your list.
    -----------------------------
    -----------------------------
-   Got it. I've added this task:
+   Added to your list:
     [T][ ] join sports club
-   Now you have 3 tasks in your list.
+   You now have 3 tasks in your list.
    -----------------------------
    -----------------------------
-   Here are the matching tasks in your list:
+   Here are the tasks that match:
    1. [T][ ] read book
    2. [D][ ] return book (by: Dec 01 2019, 6:00 pm)
    -----------------------------
    -----------------------------
-   Here are the matching tasks in your list:
+   Here are the tasks that match:
    No matching tasks found.
    -----------------------------
    -----------------------------
    OOPS!!! Please tell me what keyword to search for.
    -----------------------------
    -----------------------------
-   Goodbye! Hope to see you again soon =)
+   All set for now. See you next time.
    -----------------------------

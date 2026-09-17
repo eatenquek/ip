@@ -30,9 +30,20 @@ import kiki.ui.Ui;
  */
 public class Kiki {
     private final Ui ui = new Ui();
-    private final Storage storage = new Storage();
+    private final Storage storage;
     private final TaskList taskList = new TaskList();
     private boolean isLoaded;
+
+    /**
+     * Creates Kiki with the application's default storage location.
+     */
+    public Kiki() {
+        this(new Storage());
+    }
+
+    Kiki(Storage storage) {
+        this.storage = storage;
+    }
 
     /**
      * Starts the chatbot.
