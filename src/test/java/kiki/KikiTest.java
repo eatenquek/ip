@@ -4,18 +4,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import kiki.storage.Storage;
 import kiki.task.Deadlines;
 import kiki.task.Events;
 import kiki.task.Task;
 import kiki.task.ToDos;
 
 public class KikiTest {
+
+    @TempDir
+    private Path tempDirectory;
 
     private static final LocalDate RANGE_START = LocalDate.of(2035, Month.AUGUST, 20);
     private static final LocalDate RANGE_END = LocalDate.of(2035, Month.AUGUST, 26);
@@ -103,5 +110,72 @@ public class KikiTest {
         Task todo = new ToDos("read book");
 
         assertFalse(Kiki.descriptionContainsKeyword(todo, "movie"));
+    }
+
+    @Test
+    public void getResponse_todoPersistsForNextSession() {
+        Path saveFile = tempDirectory.resolve("kiki.txt");
+        Kiki firstSession = new Kiki(new Storage(saveFile));
+
+        String addResponse = firstSession.getResponse("todo read book");
+        String listResponse = new Kiki(new Storage(saveFile)).getResponse("list");
+
+        assertTrue(addResponse.contains("Added to your list:"));
+        assertTrue(listResponse.contains("read book"));
+    }
+
+    @Test
+    public void getResponse_emptyTodo_showsErrorWithoutCreatingSaveFile() {
+        Path saveFile = tempDirectory.resolve("kiki.txt");
+        Kiki kiki = new Kiki(new Storage(saveFile));
+
+        String response = kiki.getResponse("todo");
+
+        assertTrue(response.contains("OOPS!!!"));
+        assertTrue(response.contains("description of a todo cannot be empty"));
+        assertFalse(Files.exists(saveFile));
+    }
+
+    @Test
+    public void commands_markUnmarkAndDelete_updateTaskList() {
+        Kiki kiki = new Kiki(new Storage(tempDirectory.resolve("kiki.txt")));
+        kiki.getResponse("todo read book");
+
+        String markResponse = kiki.getResponse("mark 1");
+        String unmarkResponse = kiki.getResponse("unmark 1");
+        String deleteResponse = kiki.getResponse("delete 1");
+
+        assertTrue(markResponse.contains("Marked as complete:"));
+        assertTrue(unmarkResponse.contains("Reopened this task:"));
+        assertTrue(deleteResponse.contains("Removed from your list:"));
+        assertFalse(kiki.getResponse("list").contains("read book"));
+    }
+
+    @Test
+    public void commands_findAndCheckDay_filterScheduledTasks() {
+        Kiki kiki = new Kiki(new Storage(tempDirectory.resolve("kiki.txt")));
+        kiki.getResponse("todo read book");
+        kiki.getResponse("deadline submit report /by 2035-03-02 1800");
+
+        String findResponse = kiki.getResponse("find report");
+        String dayResponse = kiki.getResponse("check day 2 March 2035");
+
+        assertTrue(findResponse.contains("submit report"));
+        assertFalse(findResponse.contains("read book"));
+        assertTrue(dayResponse.contains("submit report"));
+        assertFalse(dayResponse.contains("read book"));
+    }
+
+    @Test
+    public void sort_datedTasksComeBeforeTodos() {
+        Kiki kiki = new Kiki(new Storage(tempDirectory.resolve("kiki.txt")));
+        kiki.getResponse("todo unscheduled task");
+        kiki.getResponse("event team meeting /from 2035-03-03 1000 /to 2035-03-03 1100");
+        kiki.getResponse("deadline submit report /by 2035-03-02 1800");
+
+        String sortResponse = kiki.getResponse("sort");
+
+        assertTrue(sortResponse.indexOf("submit report") < sortResponse.indexOf("team meeting"));
+        assertTrue(sortResponse.indexOf("team meeting") < sortResponse.indexOf("unscheduled task"));
     }
 }

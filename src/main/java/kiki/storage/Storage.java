@@ -21,7 +21,25 @@ import kiki.ui.Ui;
  * disk after every change.
  */
 public class Storage {
-    private static final Path SAVE_FILE_PATH = Path.of("data", "kiki.txt");
+    private static final Path DEFAULT_SAVE_FILE_PATH = Path.of("data", "kiki.txt");
+
+    private final Path saveFilePath;
+
+    /**
+     * Creates storage using the application's default save-file path.
+     */
+    public Storage() {
+        this(DEFAULT_SAVE_FILE_PATH);
+    }
+
+    /**
+     * Creates storage that reads and writes the supplied save file.
+     *
+     * @param saveFilePath Path to the save file.
+     */
+    public Storage(Path saveFilePath) {
+        this.saveFilePath = saveFilePath;
+    }
 
     /**
      * Saves the given task list to disk, overwriting any previous contents.
@@ -31,14 +49,14 @@ public class Storage {
      *         cannot be written.
      */
     public void save(TaskList tasks) throws KikiException {
-        Path parentPath = SAVE_FILE_PATH.getParent();
+        Path parentPath = saveFilePath.getParent();
 
         try {
             if (parentPath != null) {
                 Files.createDirectories(parentPath);
             }
 
-            if (Files.isDirectory(SAVE_FILE_PATH)) {
+            if (Files.isDirectory(saveFilePath)) {
                 throw new KikiException("Unable to save tasks because the save path is a folder.");
             }
         } catch (IOException e) {
@@ -47,7 +65,7 @@ public class Storage {
             throw new KikiException("Unable to access the save folder.");
         }
 
-        try (BufferedWriter writer = Files.newBufferedWriter(SAVE_FILE_PATH)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(saveFilePath)) {
             for (int i = 0; i < tasks.size(); i++) {
                 writer.write(formatForStorage(tasks.get(i)));
                 writer.newLine();
@@ -65,11 +83,11 @@ public class Storage {
      */
     public void load(TaskList tasks, Ui ui) {
         try {
-            if (!Files.exists(SAVE_FILE_PATH)) {
+            if (!Files.exists(saveFilePath)) {
                 return;
             }
 
-            if (Files.isDirectory(SAVE_FILE_PATH)) {
+            if (Files.isDirectory(saveFilePath)) {
                 ui.printBox("OOPS!!! Unable to load tasks because the save path is a folder.");
                 return;
             }
@@ -78,7 +96,7 @@ public class Storage {
             return;
         }
 
-        try (BufferedReader reader = Files.newBufferedReader(SAVE_FILE_PATH)) {
+        try (BufferedReader reader = Files.newBufferedReader(saveFilePath)) {
             String line = reader.readLine();
 
             while (line != null) {
