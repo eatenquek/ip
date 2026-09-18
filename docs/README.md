@@ -1,10 +1,12 @@
 # Kiki
 
+![Kiki running with a todo and a deadline](Ui.png)
+
 Kiki is a desktop task assistant for keeping track of todos, deadlines, and events. Add tasks in the command field, then search, review, complete, reopen, remove, or sort them without leaving the chat window.
 
 ## Getting started
 
-Download `kiki.jar` from the [latest GitHub Release](../../releases) and run it with Java 25:
+Download `kiki.jar` from the [latest GitHub Release](https://github.com/eatenquek/ip/releases/latest) and run it with Java 25:
 
 ```bash
 java -jar kiki.jar
