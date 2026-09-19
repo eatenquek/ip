@@ -21,18 +21,38 @@ public class Task {
         this.isDone = false;
     }
 
+    /**
+     * Returns the display icon for this task's completion status.
+     *
+     * @return {@code X} for a completed task, or a blank space otherwise.
+     */
     public String getStatusIcon() {
         return isDone ? "X" : " ";
     }
 
+    /**
+     * Checks whether this task has been completed.
+     *
+     * @return True if the task is complete.
+     */
     public boolean isDone() {
         return isDone;
     }
 
+    /**
+     * Returns the task description.
+     *
+     * @return Task description.
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * Returns the category of this task.
+     *
+     * @return Task category.
+     */
     public TaskType getType() {
         return type;
     }
