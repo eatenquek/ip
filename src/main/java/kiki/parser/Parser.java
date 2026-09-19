@@ -16,6 +16,9 @@ import kiki.task.Events;
  * task indices.
  */
 public class Parser {
+    private static final String BY_MARKER = "/by";
+    private static final String FROM_MARKER = "/from";
+    private static final String TO_MARKER = "/to";
     private static final DateTimeFormatter DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("uuuu-MM-dd HHmm").withResolverStyle(ResolverStyle.STRICT);
     private static final DateTimeFormatter CHECK_DATE_FORMAT =
@@ -45,17 +48,17 @@ public class Parser {
      */
     public static Deadlines parseDeadline(String trimmedInput) throws KikiException {
         String deadlineInput = trimmedInput.substring("deadline".length()).trim();
-        int byIndex = deadlineInput.indexOf("/by");
+        int byIndex = deadlineInput.indexOf(BY_MARKER);
 
         if (byIndex < 0) {
             throw new KikiException("Please use: deadline DESCRIPTION /by TIME");
         }
-        if (hasRepeatedMarker(deadlineInput, "/by")) {
+        if (hasRepeatedMarker(deadlineInput, BY_MARKER)) {
             throw new KikiException("Please use only one /by marker in a deadline command.");
         }
 
         String description = deadlineInput.substring(0, byIndex).trim();
-        String by = deadlineInput.substring(byIndex + "/by".length()).trim();
+        String by = deadlineInput.substring(byIndex + BY_MARKER.length()).trim();
         ensureNotEmpty(description, "The description of a deadline cannot be empty.");
         ensureNotEmpty(by, "The by time of a deadline cannot be empty.");
 
@@ -77,28 +80,28 @@ public class Parser {
      */
     public static Events parseEvent(String trimmedInput) throws KikiException {
         String eventInput = trimmedInput.substring("event".length()).trim();
-        int fromIndex = eventInput.indexOf("/from");
+        int fromIndex = eventInput.indexOf(FROM_MARKER);
 
         if (fromIndex < 0) {
             throw new KikiException("Please use: event DESCRIPTION /from START /to END");
         }
-        if (hasRepeatedMarker(eventInput, "/from")) {
+        if (hasRepeatedMarker(eventInput, FROM_MARKER)) {
             throw new KikiException("Please use only one /from marker in an event command.");
         }
 
         String description = eventInput.substring(0, fromIndex).trim();
-        String fromAndTo = eventInput.substring(fromIndex + "/from".length()).trim();
-        int toIndex = fromAndTo.indexOf("/to");
+        String fromAndTo = eventInput.substring(fromIndex + FROM_MARKER.length()).trim();
+        int toIndex = fromAndTo.indexOf(TO_MARKER);
 
         if (toIndex < 0) {
             throw new KikiException("Please use: event DESCRIPTION /from START /to END");
         }
-        if (hasRepeatedMarker(eventInput, "/to")) {
+        if (hasRepeatedMarker(eventInput, TO_MARKER)) {
             throw new KikiException("Please use only one /to marker in an event command.");
         }
 
         String from = fromAndTo.substring(0, toIndex).trim();
-        String to = fromAndTo.substring(toIndex + "/to".length()).trim();
+        String to = fromAndTo.substring(toIndex + TO_MARKER.length()).trim();
         ensureNotEmpty(description, "The description of an event cannot be empty.");
         ensureNotEmpty(from, "The start time of an event cannot be empty.");
         ensureNotEmpty(to, "The end time of an event cannot be empty.");
