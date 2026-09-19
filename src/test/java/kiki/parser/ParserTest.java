@@ -200,6 +200,12 @@ public class ParserTest {
     }
 
     @Test
+    public void parseTaskIndex_surroundingWhitespace_returnsZeroBasedIndex() throws KikiException {
+        int result = Parser.parseTaskIndex("mark   2  ", "mark", 3);
+        assertEquals(1, result);
+    }
+
+    @Test
     public void parseTaskIndex_missingNumber_exceptionThrown() {
         KikiException exception = assertThrows(KikiException.class,
                 () -> Parser.parseTaskIndex("mark", "mark", 3));
