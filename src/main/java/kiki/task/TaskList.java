@@ -76,6 +76,12 @@ public class TaskList {
         return removed;
     }
 
+    /**
+     * Returns the task at the given index.
+     *
+     * @param index Index of the task to return.
+     * @return The task at the requested index.
+     */
     public Task get(int index) {
         assert index >= 0 && index < taskCount : "Index to get should be within task list bounds";
 
@@ -91,14 +97,29 @@ public class TaskList {
         Arrays.sort(tasks, 0, taskCount, comparator);
     }
 
+    /**
+     * Returns the number of tasks currently stored.
+     *
+     * @return Number of stored tasks.
+     */
     public int size() {
         return taskCount;
     }
 
+    /**
+     * Checks whether this list has reached its capacity.
+     *
+     * @return True if no more tasks can be added.
+     */
     public boolean isFull() {
         return taskCount >= MAX_TASKS;
     }
 
+    /**
+     * Returns the maximum number of tasks this list can store.
+     *
+     * @return Maximum task capacity.
+     */
     public int getCapacity() {
         return MAX_TASKS;
     }
