@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import kiki.ai.AiService;
+import kiki.ai.LangChainAiService;
 import kiki.exception.KikiException;
 import kiki.parser.Parser;
 import kiki.storage.Storage;
@@ -31,6 +33,7 @@ import kiki.ui.Ui;
 public class Kiki {
     private final Ui ui = new Ui();
     private final Storage storage;
+    private final AiService aiService;
     private final TaskList taskList = new TaskList();
     private boolean isLoaded;
 
@@ -38,11 +41,16 @@ public class Kiki {
      * Creates Kiki with the application's default storage location.
      */
     public Kiki() {
-        this(new Storage());
+        this(new Storage(), new LangChainAiService());
     }
 
     Kiki(Storage storage) {
+        this(storage, new LangChainAiService());
+    }
+
+    Kiki(Storage storage, AiService aiService) {
         this.storage = storage;
+        this.aiService = aiService;
     }
 
     /**
@@ -140,6 +148,11 @@ public class Kiki {
                 return false;
             }
 
+            if (trimmedInput.equals("@ai") || trimmedInput.startsWith("@ai ")) {
+                answerWithAi(trimmedInput, outputUi);
+                return false;
+            }
+
             if (trimmedInput.equalsIgnoreCase("sort")) {
                 sortTasks(outputUi);
                 return false;
@@ -161,6 +174,11 @@ public class Kiki {
             outputUi.printBox("OOPS!!! " + e.getMessage());
             return false;
         }
+    }
+
+    private void answerWithAi(String trimmedInput, Ui outputUi) throws KikiException {
+        String question = Parser.parseAiQuestion(trimmedInput);
+        outputUi.printBox(aiService.ask(question));
     }
 
     private void addTodo(String trimmedInput, Ui outputUi) throws KikiException {

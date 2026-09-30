@@ -16,6 +16,10 @@ repositories {
 dependencies {
     String jUnitVersion = '5.14.4'
     String javaFxVersion = '17.0.7'
+    String langChain4jVersion = '1.10.0'
+
+    implementation "dev.langchain4j:langchain4j-open-ai:${langChain4jVersion}"
+    implementation "dev.langchain4j:langchain4j:${langChain4jVersion}"
 
     implementation "org.openjfx:javafx-base:${javaFxVersion}:win"
     implementation "org.openjfx:javafx-base:${javaFxVersion}:mac"

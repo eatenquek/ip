@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import kiki.storage.Storage;
+import kiki.ai.AiService;
 import kiki.task.Deadlines;
 import kiki.task.Events;
 import kiki.task.Task;
@@ -134,6 +135,17 @@ public class KikiTest {
         assertTrue(response.contains("OOPS!!!"));
         assertTrue(response.contains("description of a todo cannot be empty"));
         assertFalse(Files.exists(saveFile));
+    }
+
+    @Test
+    public void getResponse_aiQuestion_usesReadOnlyAiService() {
+        AiService aiService = question -> "Use deadline DESCRIPTION /by TIME.";
+        Kiki kiki = new Kiki(new Storage(tempDirectory.resolve("kiki.txt")), aiService);
+
+        String response = kiki.getResponse("@ai how do I add a deadline?");
+
+        assertTrue(response.contains("Use deadline DESCRIPTION /by TIME."));
+        assertFalse(Files.exists(tempDirectory.resolve("kiki.txt")));
     }
 
     @Test

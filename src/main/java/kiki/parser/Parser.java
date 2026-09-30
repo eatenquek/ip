@@ -136,6 +136,19 @@ public class Parser {
     }
 
     /**
+     * Parses the question from an {@code @ai ...} command.
+     *
+     * @param trimmedInput Full command line starting with {@code @ai}.
+     * @return Trimmed, non-empty question.
+     * @throws KikiException If the question is empty.
+     */
+    public static String parseAiQuestion(String trimmedInput) throws KikiException {
+        String question = trimmedInput.substring("@ai".length()).trim();
+        ensureNotEmpty(question, "Please tell me what you would like to ask Kiki's AI.");
+        return question;
+    }
+
+    /**
      * Parses the 1-based task number out of a command like "mark 2" into a
      * 0-based index into the task list.
      *

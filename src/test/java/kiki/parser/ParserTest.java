@@ -42,6 +42,17 @@ public class ParserTest {
     }
 
     @Test
+    public void parseAiQuestion_validQuestion_returnsTrimmedQuestion() throws KikiException {
+        assertEquals("how do I add a deadline?", Parser.parseAiQuestion("@ai   how do I add a deadline?  "));
+    }
+
+    @Test
+    public void parseAiQuestion_emptyQuestion_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class, () -> Parser.parseAiQuestion("@ai"));
+        assertEquals("Please tell me what you would like to ask Kiki's AI.", exception.getMessage());
+    }
+
+    @Test
     public void parseDeadline_validInput_returnsDeadlineWithParsedDateTime() throws KikiException {
         Deadlines deadline = Parser.parseDeadline("deadline return book /by 2019-12-01 1800");
 
