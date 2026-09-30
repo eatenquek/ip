@@ -13,6 +13,7 @@ import kiki.task.Deadlines;
 import kiki.task.Events;
 import kiki.task.Task;
 import kiki.task.TaskList;
+import kiki.task.Priority;
 import kiki.task.ToDos;
 import kiki.ui.Ui;
 
@@ -139,15 +140,15 @@ public class Storage {
 
         if (task instanceof Deadlines deadline) {
             return "D | " + doneStatus + " | " + deadline.getDescription()
-                    + " | " + deadline.getBy();
+                    + " | " + deadline.getBy() + " | " + deadline.getPriority();
         }
 
         if (task instanceof Events event) {
             return "E | " + doneStatus + " | " + event.getDescription() + " | " + event.getFrom()
-                    + " | " + event.getTo();
+                    + " | " + event.getTo() + " | " + event.getPriority();
         }
 
-        return "T | " + doneStatus + " | " + task.getDescription();
+        return "T | " + doneStatus + " | " + task.getDescription() + " | " + task.getPriority();
     }
 
     /**
@@ -163,7 +164,7 @@ public class Storage {
         String taskType = parts[0];
         int expectedParts = getExpectedPartCount(taskType);
 
-        if (parts.length != expectedParts) {
+        if (parts.length != expectedParts && parts.length != expectedParts - 1) {
             throw new KikiException("invalid saved task format.");
         }
 
@@ -176,6 +177,10 @@ public class Storage {
 
         if (isDone) {
             task.markAsDone();
+        }
+
+        if (parts.length == expectedParts) {
+            task.setPriority(parseSavedPriority(parts[expectedParts - 1]));
         }
 
         return task;
@@ -233,13 +238,21 @@ public class Storage {
      */
     private int getExpectedPartCount(String taskType) throws KikiException {
         if (taskType.equals("T")) {
-            return 3;
-        } else if (taskType.equals("D")) {
             return 4;
-        } else if (taskType.equals("E")) {
+        } else if (taskType.equals("D")) {
             return 5;
+        } else if (taskType.equals("E")) {
+            return 6;
         } else {
             throw new KikiException("unknown saved task type.");
+        }
+    }
+
+    private Priority parseSavedPriority(String priorityText) throws KikiException {
+        try {
+            return Priority.valueOf(priorityText.trim());
+        } catch (IllegalArgumentException e) {
+            throw new KikiException("saved task priority is invalid.");
         }
     }
 

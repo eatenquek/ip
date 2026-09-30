@@ -8,6 +8,7 @@ public class Task {
     private final String description;
     private final TaskType type;
     private boolean isDone;
+    private Priority priority;
 
     /**
      * Creates a new, not-done task.
@@ -19,6 +20,7 @@ public class Task {
         this.description = description;
         this.type = type;
         this.isDone = false;
+        this.priority = Priority.NORMAL;
     }
 
     /**
@@ -58,6 +60,25 @@ public class Task {
     }
 
     /**
+     * Returns this task's priority.
+     *
+     * @return Task priority.
+     */
+    public Priority getPriority() {
+        return priority;
+    }
+
+    /**
+     * Updates this task's priority.
+     *
+     * @param priority New priority.
+     */
+    public void setPriority(Priority priority) {
+        assert priority != null : "Task priority should not be null";
+        this.priority = priority;
+    }
+
+    /**
      * Marks this task as done.
      */
     public void markAsDone() {
@@ -73,6 +94,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return "[" + type.getSymbol() + "][" + getStatusIcon() + "] " + description;
+        return "[" + type.getSymbol() + "][" + getStatusIcon() + "][" + priority.getSymbol() + "] " + description;
     }
 }

@@ -190,4 +190,16 @@ public class KikiTest {
         assertTrue(sortResponse.indexOf("submit report") < sortResponse.indexOf("team meeting"));
         assertTrue(sortResponse.indexOf("team meeting") < sortResponse.indexOf("unscheduled task"));
     }
+
+    @Test
+    public void priorityCommand_updatesTaskAndPersistsIt() {
+        Path saveFile = tempDirectory.resolve("kiki.txt");
+        Kiki kiki = new Kiki(new Storage(saveFile));
+        kiki.getResponse("todo prepare presentation");
+
+        String response = kiki.getResponse("priority 1 high");
+
+        assertTrue(response.contains("[H] prepare presentation"));
+        assertTrue(new Kiki(new Storage(saveFile)).getResponse("list").contains("[H] prepare presentation"));
+    }
 }

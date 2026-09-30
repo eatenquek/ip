@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import kiki.exception.KikiException;
 import kiki.task.Deadlines;
 import kiki.task.Events;
+import kiki.task.Priority;
 
 public class ParserTest {
 
@@ -196,6 +197,18 @@ public class ParserTest {
     public void parseTaskIndex_validMiddleIndex_returnsZeroBasedIndex() throws KikiException {
         int result = Parser.parseTaskIndex("mark 2", "mark", 3);
         assertEquals(1, result);
+    }
+
+    @Test
+    public void parsePriority_validName_returnsPriority() throws KikiException {
+        assertEquals(Priority.HIGH, Parser.parsePriority("priority high"));
+    }
+
+    @Test
+    public void parsePriority_invalidName_exceptionThrown() {
+        KikiException exception = assertThrows(KikiException.class,
+                () -> Parser.parsePriority("priority urgent"));
+        assertEquals("Priority must be low, normal, or high.", exception.getMessage());
     }
 
     @Test

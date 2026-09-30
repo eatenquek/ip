@@ -23,6 +23,7 @@ import kiki.task.Events;
 import kiki.task.Task;
 import kiki.task.TaskList;
 import kiki.task.ToDos;
+import kiki.task.Priority;
 import kiki.ui.Ui;
 
 /**
@@ -143,6 +144,11 @@ public class Kiki {
                 return false;
             }
 
+            if (trimmedInput.equals("priority") || trimmedInput.startsWith("priority ")) {
+                updatePriority(trimmedInput, outputUi);
+                return false;
+            }
+
             if (trimmedInput.equalsIgnoreCase("list")) {
                 outputUi.printList(taskList);
                 return false;
@@ -227,6 +233,20 @@ public class Kiki {
         Task removedTask = taskList.remove(taskIndex);
         storage.save(taskList);
         outputUi.printDeleted(removedTask, taskList.size());
+    }
+
+    private void updatePriority(String trimmedInput, Ui outputUi) throws KikiException {
+        String[] parts = trimmedInput.split("\\s+");
+        if (parts.length != 3) {
+            throw new KikiException("Please use: priority TASK_NUMBER low|normal|high");
+        }
+
+        int taskIndex = Parser.parseTaskIndex("mark " + parts[1], "mark", taskList.size());
+        Priority priority = Parser.parsePriority("priority " + parts[2]);
+        Task task = taskList.get(taskIndex);
+        task.setPriority(priority);
+        storage.save(taskList);
+        outputUi.printBox("Priority updated: " + task);
     }
 
     private void checkTasks(String trimmedInput, Ui outputUi) throws KikiException {

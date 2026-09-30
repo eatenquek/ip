@@ -10,6 +10,7 @@ import java.util.Locale;
 import kiki.exception.KikiException;
 import kiki.task.Deadlines;
 import kiki.task.Events;
+import kiki.task.Priority;
 
 /**
  * Parses raw command strings typed by the user into task fields, dates, and
@@ -175,6 +176,22 @@ public class Parser {
             return taskIndex;
         } catch (NumberFormatException e) {
             throw new KikiException("Task number must be a whole number.");
+        }
+    }
+
+    /**
+     * Parses a priority name from a priority command.
+     *
+     * @param input Full priority command.
+     * @return Parsed priority.
+     * @throws KikiException If the priority name is unknown.
+     */
+    public static Priority parsePriority(String input) throws KikiException {
+        String priorityText = input.substring("priority".length()).trim().toUpperCase(Locale.ENGLISH);
+        try {
+            return Priority.valueOf(priorityText);
+        } catch (IllegalArgumentException e) {
+            throw new KikiException("Priority must be low, normal, or high.");
         }
     }
 

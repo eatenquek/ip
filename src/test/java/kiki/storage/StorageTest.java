@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.io.TempDir;
 import kiki.exception.KikiException;
 import kiki.task.Deadlines;
 import kiki.task.Events;
+import kiki.task.Priority;
 import kiki.task.TaskList;
 import kiki.task.ToDos;
 import kiki.ui.Ui;
@@ -84,6 +86,17 @@ public class StorageTest {
 
         assertEquals(0, tasks.size());
         assertTrue(output.toString().isEmpty());
+    }
+
+    @Test
+    public void load_legacyTaskWithoutPriority_defaultsToNormal() throws IOException {
+        Path saveFile = tempDirectory.resolve("legacy.txt");
+        Files.writeString(saveFile, "T | 0 | read book\n");
+        TaskList tasks = new TaskList();
+
+        new Storage(saveFile).load(tasks, new Ui());
+
+        assertEquals(Priority.NORMAL, tasks.get(0).getPriority());
     }
 
     @Test
