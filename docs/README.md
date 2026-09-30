@@ -2,7 +2,7 @@
 
 ![Kiki running with a todo and a deadline](Ui.png)
 
-Kiki is a desktop task assistant for keeping track of todos, deadlines, and events. Add tasks in the command field, then search, review, complete, reopen, remove, or sort them without leaving the chat window.
+Kiki is a desktop task assistant for keeping track of todos, deadlines, and events. Add tasks in the command field, then search, review, complete, reopen, prioritize, remove, or sort them without leaving the chat window.
 
 ## Getting started
 
@@ -29,13 +29,25 @@ Kiki saves tasks in `data/kiki.txt` in the directory from which it is launched. 
 | Mark a task complete | `mark NUMBER` | `mark 1` |
 | Reopen a task | `unmark NUMBER` | `unmark 1` |
 | Remove a task | `delete NUMBER` | `delete 2` |
+| Set task priority | `priority NUMBER low\|normal\|high` | `priority 1 high` |
+| Ask AI for command help | `@ai QUESTION` | `@ai how do I add a deadline?` |
 | Close Kiki | `bye` | `bye` |
 
 Use the number shown by `list` with `mark`, `unmark`, or `delete`. Dates for `check day` and `check week` use `d MMMM` or `d MMMM uuuu`; omitting the year uses the current year. Event end times must be later than start times. Kiki highlights invalid commands and malformed dates so they can be corrected.
 
 ## Task status
 
-`[T]` is a todo, `[D]` a deadline, and `[E]` an event. `[ ]` means not completed and `[X]` means completed. Tasks are saved automatically after changes.
+`[T]` is a todo, `[D]` a deadline, and `[E]` an event. `[ ]` means not completed and `[X]` means completed. `[L]`, `[N]`, and `[H]` represent low, normal, and high priority. Tasks are saved automatically after changes.
+
+### AI help setup
+
+The optional `@ai` command answers read-only questions about Kiki's commands. It requires an API key for an OpenAI-compatible provider. Set the key in your environment before starting Kiki:
+
+```bash
+export LLM_API_KEY=your_api_key_here
+```
+
+Groq users can optionally set `LLM_BASE_URL` and `LLM_MODEL`; Kiki defaults to the Groq OpenAI-compatible endpoint and `llama-3.3-70b-versatile`. Never put the API key in the repository or share it with others. Without a key, Kiki will explain how to configure AI help and the rest of the application continues to work.
 
 ## Build from source
 
