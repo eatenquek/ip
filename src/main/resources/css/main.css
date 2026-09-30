@@ -13,6 +13,12 @@
     -fx-background-color: transparent;
 }
 
+.command-hint {
+    -fx-padding: 0 4 0 4;
+    -fx-text-fill: #607067;
+    -fx-font-size: 11;
+}
+
 .message-bubble {
     -fx-background-color: #ffffff;
     -fx-background-radius: 6;
@@ -57,12 +63,14 @@
     -fx-background-radius: 6;
     -fx-border-color: #cbd5cf;
     -fx-border-radius: 6;
+    -fx-min-height: 38;
     -fx-padding: 9 10;
 }
 
 .button {
     -fx-background-color: #293b31;
     -fx-background-radius: 6;
+    -fx-min-height: 38;
     -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-padding: 9 16;
